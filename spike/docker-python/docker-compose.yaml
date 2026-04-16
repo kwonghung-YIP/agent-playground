@@ -1,0 +1,12 @@
+services:
+  docker-python:
+    image: kwonghung/docker-python:latest
+    container_name: docker-python
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # disable print buffer to so the log
+      PYTHONUNBUFFERED: 1
+
+      
