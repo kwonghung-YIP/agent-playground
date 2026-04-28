@@ -31,7 +31,6 @@ import pika
 from pika.adapters.asyncio_connection import AsyncioConnection
 from pika.channel import Channel
 from pika.spec import Basic, BasicProperties
-from pika.exchange_type import ExchangeType
 
 class AsyncConsumer():
 
@@ -41,14 +40,12 @@ class AsyncConsumer():
         self._channel: Channel = None
         self._consumerTag: str = None
 
-
     def connect(self) -> AsyncioConnection:
         credential = pika.PlainCredentials("admin","passwd")
         parameters = pika.ConnectionParameters(credentials=credential)
         conn = AsyncioConnection(
             parameters=parameters,
             on_open_callback=self.on_conn_open,
-            on_open_error_callback=self.on_conn_open_error,
             on_close_callback=self.on_conn_close,
             custom_ioloop=self._eventloop
         )
@@ -56,78 +53,62 @@ class AsyncConsumer():
 
     def on_conn_open(self, conn:AsyncioConnection) -> None:
         logger.info("Connection opened...")
-        self._channel = self.open_channel()
-
-    def on_conn_open_error(self, conn:AsyncioConnection, err:Exception) -> None:
-        logger.error("Cannot open the connection with error...")
-
-    def on_conn_close(self, conn:AsyncioConnection, reason:Exception) -> None:
-        logger.info("Connection closed...")
-
-    def open_channel(self) -> Channel:
-        logger.info("Open channel...")
-        channel = self._connection.channel(on_open_callback=self.on_channel_open)
-        return channel
+        channel = conn.channel(on_open_callback=self.on_channel_open)
 
     def on_channel_open(self, channel:Channel):
         logger.info("Channel opened...")
-        self._channel.add_on_cancel_callback(self.on_channel_cancel)
+        self._channel = channel
         self._channel.add_on_close_callback(self.on_channel_close)
-
-        self._consumerTag = self.start_consuming_channel("test")
-
-    def on_channel_cancel(self, method_frame:pika.frame.Method):
-        logger.info("Channel cancelled...")
-        self._channel.close()
-
-    def on_channel_close(self, channel:Channel, reason:Exception):
-        logger.info("Channel closed...")
-        self._connection.close()
-
-    def start_consuming_channel(self, queue:str) -> str:
-        logger.info("Start consuming channel...")
-        consumerTag = self._channel.basic_consume(
-            queue=queue,
+        #self._channel.add_on_cancel_callback(self.on_channel_cancel)
+        self._consumerTag = self._channel.basic_consume(
+            queue="test",
             on_message_callback=self.on_message
         )
-        return consumerTag
+        logger.info(f"consumerTag is {self._consumerTag}")        
 
     def on_message(self, channel:Channel, method: Basic.Deliver, props: BasicProperties, body:bytes):
         logger.info(f"Receive message {body.decode()}")
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
-    def stop_consuming_channel(self):
-        logger.info("Stop consuming channel...")
-        cb = functools.partial(self.on_channel_cancel_ok, userdata=self._consumerTag)
-        self._channel.basic_cancel(self._consumerTag, cb)
-
-    def on_channel_cancel_ok(self, method_frame:pika.frame.Method, userdata):
+    def on_channel_basic_cancel_ok(self, method_frame:pika.frame.Method):
         logger.info("Channel Basic.Cancel OK...")
-        logger.info("Closing channel...")
         self._channel.close()
 
+    #def on_channel_cancel(self, method_frame:pika.frame.Method):
+    #    logger.info("Channel cancelled...")
+    #    self._channel.close()  
 
-    def run(self):
-        logger.info("AsyncConsumer run...")
+    def on_channel_close(self, channel:Channel, reason:Exception):
+        logger.info("Channel closed...")
+        self._connection.close()        
+
+    def on_conn_close(self, conn:AsyncioConnection, reason:Exception) -> None:
+        logger.info("Connection closed...")
+        logger.info("Stop eventloop...")
+        self._connection.ioloop.stop()
+        self._connection = None
+
+    def start(self) -> None:
+        logger.info("start...")
         self._connection = self.connect()
         self._connection.ioloop.run_forever()
 
-    def stop(self):
-        logger.info("AsyncConsumer stop...")
-        self._connection.ioloop.stop()
-        
+    def stop(self) -> None:
+        logger.info("stop...")
+        self._channel.basic_cancel(consumer_tag=self._consumerTag,
+            callback=self.on_channel_basic_cancel_ok)
+        # keep running the eventloop to capture the closing event
+        self._connection.ioloop.run_forever()        
 
 def main():
     eventloop = asyncio.new_event_loop()
     consumer = AsyncConsumer(eventloop)
     
     try:
-        consumer.run()
+        consumer.start()
     except KeyboardInterrupt:
-        consumer.stop_consuming_channel()
-        time.sleep(5)
-        #consumer.stop()
-        #eventloop.close()
+        consumer.stop()
+        eventloop.close()
 
 if __name__ == "__main__":
     main()
