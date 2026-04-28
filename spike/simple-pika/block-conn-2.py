@@ -35,7 +35,14 @@ import pika
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel 
 from pika.spec import Basic, BasicProperties
 
+import asyncio
+
 ConsumeMessage = Tuple[Basic.Deliver|None, BasicProperties|None, bytes|None]
+
+async def long_running_task(sleep:float) -> None:
+    logger.info(f"sleep for {sleep} seconds...")
+    await asyncio.sleep(sleep)
+    logger.info(f"wake up after {sleep} seconds...")
 
 class PikaBlockConsumer(threading.Thread):
 
@@ -85,9 +92,11 @@ class PikaBlockConsumer(threading.Thread):
                         logger.info(f"Received message {type(body)} {body.decode()}")
                         channel.basic_ack(method.delivery_tag)
 
-                        logger.info(f"Publish response message")
-                        channel.basic_publish(exchange="", routing_key="response", 
-                            body=f"I received your message \"{body}\"")
+                        asyncio.run(long_running_task(30))
+
+                        #logger.info(f"Publish response message")
+                        #channel.basic_publish(exchange="", routing_key="response", 
+                        #    body=f"I received your message \"{body}\"")
                     
                     if self._termSignal.is_set():
                         logger.info("termSignal is set and stop loop..")
