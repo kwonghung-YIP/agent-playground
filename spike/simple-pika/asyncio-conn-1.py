@@ -1,11 +1,12 @@
 import logging
 
-LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(funcName)s : %(message)s"
+LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(taskName)s|%(funcName)s : %(message)s"
 
 logger = logging.getLogger(__name__)
 
 import time
 import functools
+import random
 import asyncio
 import pika
 from pika.adapters.asyncio_connection import AsyncioConnection
@@ -45,27 +46,33 @@ class AsyncConsumer():
         self._channel = channel
         self._channel.add_on_close_callback(self.on_channel_close)
         #self._channel.add_on_cancel_callback(self.on_channel_cancel)
+
         self._consumerTag = self._channel.basic_consume(
             queue=self._reqQueue,
             on_message_callback=self.on_message
         )
         logger.info(f"consumerTag is {self._consumerTag}")
 
-    async def longRunningTask(self, sleep) -> None:
+    async def longRunningTask(self, maxSleep:int, message:str) -> str:
+        sleep = random.randrange(3,maxSleep)
         logger.info(f"sleep for {sleep} second(s)")
         await asyncio.sleep(sleep)
+        return f"Prepare response for {message} after {sleep} secords"
+    
+    def on_task_done(self, task:asyncio.Task):
+        logger.info(f"task done, result:{task.result()}")
+        self._channel.basic_publish(
+            exchange="", routing_key=self._respExchange,
+            body=task.result()
+        )
 
     def on_message(self, channel:Channel, method: Basic.Deliver, props: BasicProperties, body:bytes):
         logger.info(f"Receive message {body.decode()}")
 
-        #asyncio.get_running_loop().
-
-        self._channel.basic_publish(
-            exchange="", routing_key=self._respExchange,
-            body=f"Received message:{body.decode()}"
-        )
-
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
+
+        task = asyncio.create_task(self.longRunningTask(20,body.decode()),name="t1")
+        task.add_done_callback(self.on_task_done)
 
     def on_channel_basic_cancel_ok(self, method_frame:pika.frame.Method):
         logger.info("Channel Basic.Cancel OK...")
