@@ -1,27 +1,7 @@
-import os
 import logging
-import logging.config
-import dotenv
-import yaml
 
-def load_logging_config():
-    config_file = os.getenv("LOG_CONFIG_FILE","logging-config.yaml")
-    if os.path.exists(config_file):
-        with open(config_file, 'rt') as yaml_file:
-            try:
-                config = yaml.safe_load(yaml_file.read())
-                logging.config.dictConfig(config)
-            except Exception as e:
-                print(f"Exception when loading the config file {yaml_file}: {e}")
-    else:
-        print(f"Cannot find the logging config file:{config_file}")
-        
-    # back to basic config in case cannot load the config file
-    default_level = logging.INFO
-    logging.basicConfig(level=default_level)
+LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(funcName)s : %(message)s"
 
-dotenv.load_dotenv()
-load_logging_config()
 logger = logging.getLogger(__name__)
 
 import time
@@ -40,8 +20,13 @@ class AsyncConsumer():
         self._channel: Channel = None
         self._consumerTag: str = None
 
+        self._username = "admin"
+        self._passwd = "passwd"
+        self._reqQueue = "request"
+        self._respExchange = "response"
+
     def connect(self) -> AsyncioConnection:
-        credential = pika.PlainCredentials("admin","passwd")
+        credential = pika.PlainCredentials(self._username, self._passwd)
         parameters = pika.ConnectionParameters(credentials=credential)
         conn = AsyncioConnection(
             parameters=parameters,
@@ -61,13 +46,25 @@ class AsyncConsumer():
         self._channel.add_on_close_callback(self.on_channel_close)
         #self._channel.add_on_cancel_callback(self.on_channel_cancel)
         self._consumerTag = self._channel.basic_consume(
-            queue="test",
+            queue=self._reqQueue,
             on_message_callback=self.on_message
         )
-        logger.info(f"consumerTag is {self._consumerTag}")        
+        logger.info(f"consumerTag is {self._consumerTag}")
+
+    async def longRunningTask(self, sleep) -> None:
+        logger.info(f"sleep for {sleep} second(s)")
+        await asyncio.sleep(sleep)
 
     def on_message(self, channel:Channel, method: Basic.Deliver, props: BasicProperties, body:bytes):
         logger.info(f"Receive message {body.decode()}")
+
+        #asyncio.get_running_loop().
+
+        self._channel.basic_publish(
+            exchange="", routing_key=self._respExchange,
+            body=f"Received message:{body.decode()}"
+        )
+
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_channel_basic_cancel_ok(self, method_frame:pika.frame.Method):
@@ -94,7 +91,7 @@ class AsyncConsumer():
         self._connection.ioloop.run_forever()
 
     def stop(self) -> None:
-        logger.info("stop...")
+        logger.info("call Basic.Cancel to stop...")
         self._channel.basic_cancel(consumer_tag=self._consumerTag,
             callback=self.on_channel_basic_cancel_ok)
         # keep running the eventloop to capture the closing event
@@ -111,4 +108,5 @@ def main():
         eventloop.close()
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
     main()
