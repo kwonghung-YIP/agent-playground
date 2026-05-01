@@ -1,5 +1,10 @@
+ARG UV_VERSION=python3.14-alpine3.23
+
 # Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.14-alpine3.23
+FROM ghcr.io/astral-sh/uv:${UV_VERSION}
+
+ARG MAIN_PYTHON_FILE=main.py
+ENV MAIN_PYTHON_FILE=${MAIN_PYTHON_FILE}
 
 # Setup a non-root user
 RUN addgroup -S -g 888 nonroot \
@@ -29,8 +34,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
 COPY . /app
+
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
+
+RUN cp /app/${MAIN_PYTHON_FILE} /app/main.py
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
@@ -46,4 +54,4 @@ USER nonroot
 # Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
 # Uses `--host 0.0.0.0` to allow access from outside the container
 # Note in production, you should use `fastapi run` instead
-CMD ["uv", "run", "asyncio-conn-2.py"]
+CMD ["uv", "run", "main.py"]

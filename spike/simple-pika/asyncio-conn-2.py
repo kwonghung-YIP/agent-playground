@@ -10,6 +10,7 @@ import asyncio
 import signal
 import functools
 import contextlib
+import os
 
 import pika
 from pika.adapters.asyncio_connection import AsyncioConnection
@@ -20,7 +21,7 @@ import random
 
 class AsyncPikaConsumer(threading.Thread):
 
-    def __init__(self, handler:asyncio.coroutines):
+    def __init__(self, host:str, handler:asyncio.coroutines):
         super().__init__()
         self._termSignal = threading.Event()
 
@@ -28,6 +29,7 @@ class AsyncPikaConsumer(threading.Thread):
         self._channel: Channel = None
         self._consumerTag: str = None
 
+        self._host = host
         self._username = "admin"
         self._passwd = "passwd"
         self._reqQueue = "request"
@@ -53,7 +55,7 @@ class AsyncPikaConsumer(threading.Thread):
             logger.info("opening connection...")
 
             credential = pika.PlainCredentials(self._username, self._passwd)
-            parameters = pika.ConnectionParameters(host="rabbitmq", credentials=credential)
+            parameters = pika.ConnectionParameters(host=self._host, credentials=credential)
             connection = AsyncioConnection(
                 parameters=parameters,
                 on_open_callback=self.on_conn_open,
@@ -158,8 +160,9 @@ async def makeGeminiCall(message:str) -> str:
 
 
 def main():
+    host = os.getenv("RABBITMQ_HOST","localhost")
     try:
-        consumer = AsyncPikaConsumer(handler=makeGeminiCall)
+        consumer = AsyncPikaConsumer(host,makeGeminiCall)
         signal.signal(signal.SIGTERM, functools.partial(handle_signal,consumer=consumer))
         consumer.start()
         # keep the MainThread running...
