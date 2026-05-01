@@ -10,3 +10,15 @@ services:
       RABBITMQ_DEFAULT_USER: admin 
       RABBITMQ_DEFAULT_PASS: passwd    
       
+
+  python-pika:
+    image: kwonghung/python-pika:latest
+    container_name: python-pika
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # disable print buffer to so the log
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      - rabbitmq
