@@ -1,5 +1,5 @@
 def main():
-    print("Hello from simple-pika!")
+    print("Hello from postgres-jsonb!")
 
 
 if __name__ == "__main__":

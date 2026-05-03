@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-18.3}
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=passwd
+      - POSTGRES_DB=db1
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+
+  adminer:
+    image: adminer:${ADMINER_VERSION:-5.4.2}
+    ports:
+      - 8080:8080
+    links:
+      - postgres:db
+    depends_on:
+      - postgres
