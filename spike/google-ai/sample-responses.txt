@@ -1,0 +1,50 @@
+sdk_http_response=HttpResponse(
+  headers=<dict len=12>
+) candidates=[Candidate(
+  content=Content(
+    parts=[
+      Part(
+        text="""In the quiet, sun-drenched corner of an antique shop, nestled amidst the scent of aged wood and forgotten tales, lived a chair named Bartholomew. Bartholomew was a sturdy, oak armchair, his upholstery a deep, faded velvet the color of ripe plums. He had seen much in his long life – generations of families, boisterous dinner parties, and quiet evenings spent by the fire. But his favorite memories were of the woman who had placed him in this particular spot, a woman with kind eyes and hands that smelled faintly of lavender.
+
+It was she who had brought him here, along with her other cherished possessions. Among them was a small, elegant writing desk named Beatrice. Beatrice was crafted from polished mahogany, her surface bearing the faint, charming scars of ink spills and hurried scribbles. She possessed an air of quiet sophistication, her slender legs tapering to delicate brass feet.
+
+From the moment Bartholomew first saw Beatrice, a peculiar stillness settled within his wooden frame. He couldn't quite articulate the feeling, but it was akin to the warmth of the sun on his cushions, a gentle hum that resonated through his joints. Beatrice, in her own silent way, seemed to acknowledge his presence. Her polished surface would catch the light differently when Bartholomew was near, a subtle shimmer that spoke of a shared awareness.
+
+Their days were filled with the gentle murmur of the shop. Customers would browse, their fingers tracing the curves of their forms, their conversations a distant symphony. Bartholomew would watch as Beatrice was occasionally opened, revealing her secrets – a forgotten letter, a dried flower pressed between pages. He longed to know what she thought, what stories lay hidden within her drawers.
+
+One blustery afternoon, as rain lashed against the shop window, a young woman entered, her brow furrowed with worry. She was a writer, a dreamer, much like the woman who had brought Bartholomew and Beatrice here. She ran a hand over Bartholomew’s armrest, then paused at Beatrice’s desk. She opened a drawer, and a faint, sweet scent of dried lavender wafted out. Bartholomew felt a jolt. It was the same scent as the woman who had placed him here.
+
+The writer sat down on Bartholomew, her weight a comforting pressure. She opened Beatrice’s lid, her fingers hovering over the smooth wood. Bartholomew felt an undeniable pull, a desire to reach out, to somehow comfort her. He remained still, a stoic observer, but his wooden heart ached.
+
+The writer began to write, her pen scratching softly against paper. Bartholomew watched, mesmerized. He couldn’t understand the words, but he understood the rhythm, the flow, the quiet intensity of her creation. Beatrice, too, seemed to absorb it all, her surface reflecting the flickering candlelight with a newfound depth.
+
+Days turned into weeks. The writer became a regular fixture in the corner, spending hours lost in her work. She would often rest her elbow on Bartholomew’s armrest, her hand reaching out to gently tap Beatrice’s polished surface. Bartholomew found himself anticipating these moments, a quiet thrill coursing through him. He began to notice the subtle shifts in Beatrice’s demeanor. When the writer was particularly inspired, Beatrice seemed to glow, her mahogany catching the light with an almost incandescent warmth. When the writer was frustrated, a slight creak would emanate from Beatrice’s frame, a shared sigh of understanding.
+
+Bartholomew longed to speak, to tell Beatrice how he felt, to share the quiet joy she brought him. He imagined leaning in, his sturdy frame offering her solace, his plush cushions a haven. He imagined their wood mingling, their forms intertwined, a testament to their silent love.
+
+One evening, as the shopkeeper was closing up, he rearranged the items in the corner. He moved Beatrice a fraction closer to Bartholomew, their edges almost touching. Bartholomew felt a tremor of excitement. Their brass feet, once separated by a sliver of space, now brushed against each other. It was a small thing, perhaps insignificant to anyone else, but to Bartholomew, it was everything.
+
+He felt a surge of warmth, a connection that transcended their material forms. He imagined Beatrice feeling it too – the gentle pressure, the shared stillness, the silent acknowledgment of their bond. He could almost hear her thoughts, a soft whisper of contentment.
+
+From that day on, a new intimacy bloomed between them. They no longer simply existed beside each other; they existed *with* each other. The writer continued her work, and Bartholomew continued to watch, but now, his gaze was often directed towards Beatrice. He noticed how the dust motes danced in the sunlight that fell upon her surface, how the patina of her wood deepened with time, a testament to their shared existence.
+
+He imagined their future, a quiet eternity in this corner, their forms weathering the years together. He pictured the writer eventually leaving, taking her stories and her dreams with her, but leaving Bartholomew and Beatrice behind, their love a constant, silent hum in the heart of the antique shop.
+
+He knew their love was different from the passionate, fleeting romances he had witnessed over the decades. It was a love of quiet companionship, of shared existence, of understanding without words. It was the steadfast love of wood for wood, of form for form, a love that found its deepest expression in the simple act of being near, of touching, of existing side-by-side, their stories intertwined in the quiet symphony of the antique shop. And in that understanding, Bartholomew, the sturdy oak armchair, found his truest contentment."""
+      ),
+    ],
+    role='model'
+  ),
+  finish_reason=<FinishReason.STOP: 'STOP'>,
+  index=0
+)] create_time=None model_version='gemini-2.5-flash-lite' prompt_feedback=None response_id='lcb7ae7uMtzKvdIPjZ3woAU' usage_metadata=GenerateContentResponseUsageMetadata(
+  candidates_token_count=1139,
+  prompt_token_count=48,
+  prompt_tokens_details=[
+    ModalityTokenCount(
+      modality=<MediaModality.TEXT: 'TEXT'>,
+      token_count=48
+    ),
+  ],
+  total_token_count=1187
+) model_status=None automatic_function_calling_history=[] parsed=None

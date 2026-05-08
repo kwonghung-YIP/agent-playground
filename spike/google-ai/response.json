@@ -1,0 +1,79 @@
+{
+    "sdk_http_response": {
+        "headers": {
+            "x-gemini-service-tier": "standard",
+            "content-type": "application/json; charset=UTF-8",
+            "vary": "Origin, X-Origin, Referer",
+            "content-encoding": "gzip",
+            "date": "Fri, 08 May 2026 23:37:42 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "x-xss-protection": "0",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "server-timing": "gfet4t7; dur=6471",
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "transfer-encoding": "chunked"
+        },
+        "body": null
+    },
+    "candidates": [
+        {
+            "content": {
+                "parts": [
+                    {
+                        "media_resolution": null,
+                        "code_execution_result": null,
+                        "executable_code": null,
+                        "file_data": null,
+                        "function_call": null,
+                        "function_response": null,
+                        "inline_data": null,
+                        "text": "Once upon a time, in a cozy little cottage filled with the scent of freshly baked bread and blooming lavender, lived a charming wooden Table and a gentle rocking Chair. They weren't just any furniture; they were the heart of the cottage, always together, always a pair.\n\nTable was a sturdy, oak fellow, his surface smooth and polished from years of happy use. He’d felt the scrape of hurried breakfast bowls, the gentle tap of knitting needles, and the joyous thud of board games. He loved being the center of attention, holding everything from steaming mugs of tea to stacks of beloved books.\n\nChair, on the other hand, was a graceful, wicker lady with a soft, faded cushion. She had a gentle creak when she moved, a sound that was like a soft sigh of contentment. She loved nothing more than to be near Table, feeling the warmth that emanated from him, and listening to the stories he held within his wood.\n\nTheir love wasn't loud or flashy. It was a quiet, comfortable affection that grew stronger with each passing season. They spent their days side-by-side in the sun-drenched living room. When the cottage’s human family, the kind Mrs. Gable and her two giggling children, Lily and Tom, were around, they were always bustling about. Lily would often lean against Table, sketching her dreams in a worn notebook, while Tom would build magnificent towers of blocks on his surface. Chair would patiently rock, her cushion welcoming Mrs. Gable after a long day, or holding Lily as she read fantastical tales before bedtime.\n\nTable loved to watch Chair. He admired the way the sunlight dappled through her wicker weave, creating dancing patterns on the floor. He felt a quiet happiness when she’d gently sway, as if humming a silent tune. He especially loved it when her soft cushion would brush against his sturdy leg, sending a little shiver of delight through him.\n\nChair, in turn, adored Table. She loved the comforting solidity of him, the way he stood so tall and unmoving, a silent guardian of their shared space. She felt safe and cherished when his broad surface was just within her reach. She would listen to the soft murmurs of conversations that happened around him, the laughter that echoed from his depths, and feel as if she were a part of it all.\n\nOne blustery autumn evening, a fierce storm raged outside. The wind howled like a hungry wolf, and the rain lashed against the cottage windows. Lily and Tom, usually so brave, were a little scared. Mrs. Gable gathered them close, and they all sat around Table. Lily rested her head on his smooth surface, and Tom snuggled into Chair’s embrace.\n\n“Don’t worry, little ones,” Mrs. Gable said softly, stroking Tom’s hair. “We are safe and sound in our cozy cottage.”\n\nAs the storm raged, Table felt a pang of worry. He wished he could do more to protect them. Chair, sensing his unease, gently creaked. It was a reassuring sound, a soft whisper of comfort. Table felt the subtle shift as Chair moved a little closer, her wicker arm almost touching his. In that moment, he felt a surge of warmth, not just from the fire, but from her presence.\n\nHe understood then. Their love wasn't about grand gestures; it was about being there for each other, and for the humans they cherished. It was about offering stability and comfort, a quiet strength in the face of any storm.\n\nAs winter arrived, the cottage became a wonderland of snow and twinkling lights. Lily and Tom spent hours drawing on Table’s surface, their rosy cheeks flushed with excitement. Chair was their cozy haven, keeping them warm as they imagined snowy adventures.\n\nOne crisp Christmas morning, Lily placed a small, hand-painted ornament on Table’s corner. It was a little wooden heart, painted in bright red. “This is for you, Table,” she declared, her eyes sparkling. “Because you’re the best table in the whole world!”\n\nTable felt a warmth spread through him, deeper than any fire. He wished he could thank her, but he could only hold the ornament steady. Later that day, as Mrs. Gable sat in Chair, reading a Christmas carol, she gently placed her hand on Chair’s armrest. “You’re such a good friend, aren’t you, Chair?” she murmured.\n\nChair responded with her softest creak, a happy little wiggle of her frame. She felt the gentle touch and knew she was loved.\n\nYears passed, and Lily and Tom grew taller, their voices deeper. The cottage remained their haven, and Table and Chair remained its steadfast heart. They saw birthdays celebrated, scraped knees kissed, and bedtime stories whispered. They witnessed the quiet moments of joy and the occasional tears, always present, always supporting.\n\nEven when the cottage was empty, and a hush fell over the rooms, Table and Chair remained. They stood side-by-side, their wood polished by time and love, their cushions worn soft with the memory of countless embraces.\n\nTable would sometimes feel a phantom brush of Chair’s wicker against his leg, a whisper of memory. Chair would sense the comforting solidity of Table, a silent promise of companionship. Their love story was etched into the grain of their wood, woven into the fibers of their cushions. It was a love that didn't need words, a love that was simply *there*, a constant, quiet presence, just like the steady beat of a loving heart. And in their own special way, they lived happily ever after, a testament to the enduring power of quiet affection, in their cozy little cottage, forever a perfect pair.",
+                        "thought": null,
+                        "thought_signature": null,
+                        "video_metadata": null,
+                        "tool_call": null,
+                        "tool_response": null,
+                        "part_metadata": null
+                    }
+                ],
+                "role": "model"
+            },
+            "citation_metadata": null,
+            "finish_message": null,
+            "token_count": null,
+            "finish_reason": "STOP",
+            "grounding_metadata": null,
+            "avg_logprobs": null,
+            "index": 0,
+            "logprobs_result": null,
+            "safety_ratings": null,
+            "url_context_metadata": null
+        }
+    ],
+    "create_time": null,
+    "model_version": "gemini-2.5-flash-lite",
+    "prompt_feedback": null,
+    "response_id": "xnP-aamUNNe0nsEPr7DdgAs",
+    "usage_metadata": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1184,
+        "candidates_tokens_details": null,
+        "prompt_token_count": 61,
+        "prompt_tokens_details": [
+            {
+                "modality": "TEXT",
+                "token_count": 61
+            }
+        ],
+        "thoughts_token_count": null,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 1245,
+        "traffic_type": null
+    },
+    "model_status": null,
+    "automatic_function_calling_history": [],
+    "parsed": null
+}
