@@ -110,6 +110,8 @@ class AsyncPikaConsumer(threading.Thread):
 
     def on_message(self, channel:Channel, method: Basic.Deliver, props: BasicProperties, body:bytes, taskGroup:asyncio.TaskGroup):
         logger.info(f"Receive message {body.decode()}")
+        logger.info(f"reply_to: {props.reply_to}")
+        logger.info(f"correlation_id: {props.correlation_id}")
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -125,10 +127,11 @@ class AsyncPikaConsumer(threading.Thread):
         logger.info("Channel closed...")
         self._connection.close()        
 
-    def on_handler_done(self, task:asyncio.Task):
+    def on_handler_done(self, task:asyncio.Task, props: BasicProperties):
         logger.info(f"task done, publishing result to queue result:{task.result()}")
         self._channel.basic_publish(
-            exchange="", routing_key=self._respExchange,
+            exchange="", routing_key=props.reply_to,
+            properties=pika.BasicProperties(correlation_id=props.correlation_id),
             body=task.result()
         )
 

@@ -1,0 +1,57 @@
+{
+    "rabbit_version": "4.3.0",
+    "users": [
+        {
+            "name": "admin",
+            "password_hash": "zfIZgoJ/s9obBALbGyh/DWYq1NH24qADFOFjiYaWk161fv+G",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": [
+                "administrator"
+            ],
+            "limits": {}
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/",
+            "description": "Default virtual host",
+            "metadata": {
+                "description": "Default virtual host",
+                "tags": [],
+                "default_queue_type": "classic"
+            },
+            "tags": []
+        }
+    ],
+    "permissions": [
+        {
+            "user": "admin",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "queues": [
+        {
+            "name": "request",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        },
+        {
+            "name": "response",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        }
+    ],
+    "exchanges": [],
+    "bindings": []
+}

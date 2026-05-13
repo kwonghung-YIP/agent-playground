@@ -1,6 +1,6 @@
 services:
   rabbitmq:
-    image: rabbitmq:4.2.5-management
+    image: rabbitmq:4.3.0-management
     container_name: rabbitmq
     hostname: rabbitmq_node
     ports:
@@ -8,7 +8,25 @@ services:
       - 15672:15672
     environment:
       RABBITMQ_DEFAULT_USER: admin 
-      RABBITMQ_DEFAULT_PASS: passwd    
+      RABBITMQ_DEFAULT_PASS: passwd
+    #  RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq.conf
+    volumes:
+      #- ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      #- ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ./rabbitmq/init-setup.sh:/etc/rabbitmq/init-setup.sh
+    # container status: starting => healthy (first health check success) => unhealthy
+    # https://docs.docker.com/reference/compose-file/services/#healthcheck
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      start_period: 10s
+      start_interval: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # docker compose: Using lifecycle hooks with Compose
+    # https://docs.docker.com/compose/how-tos/lifecycle/
+    #post_start:
+    #  - command: /etc/rabbitmq/init-setup.sh
       
 
   python-pika:
@@ -24,4 +42,5 @@ services:
       PYTHONUNBUFFERED: 1
       RABBITMQ_HOST: rabbitmq
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
