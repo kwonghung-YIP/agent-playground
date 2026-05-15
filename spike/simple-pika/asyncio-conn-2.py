@@ -117,7 +117,7 @@ class AsyncPikaConsumer(threading.Thread):
 
         self._handlerTaskCount += 1
         task = taskGroup.create_task(self._handler(body.decode()),name=f"handlerTask{self._handlerTaskCount}")
-        task.add_done_callback(self.on_handler_done)
+        task.add_done_callback(functools.partial(self.on_handler_done, props=props))
 
     def on_channel_basic_cancel_ok(self, method_frame:pika.frame.Method):
         logger.info("Channel Basic.Cancel OK...")
