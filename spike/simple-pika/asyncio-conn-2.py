@@ -19,6 +19,19 @@ from pika.spec import Basic, BasicProperties
 
 import random
 
+from pydantic import BaseModel
+
+class AgentRequest(BaseModel):
+    agentId: str
+    chatId: str
+    userInput: str
+
+class AgentResponse(BaseModel):
+    agentId: str
+    chatId: str
+    modelReply: str
+
+
 class AsyncPikaConsumer(threading.Thread):
 
     def __init__(self, host:str, handler:asyncio.coroutines):
@@ -109,7 +122,7 @@ class AsyncPikaConsumer(threading.Thread):
         self._channel.add_on_close_callback(self.on_channel_close)
 
     def on_message(self, channel:Channel, method: Basic.Deliver, props: BasicProperties, body:bytes, taskGroup:asyncio.TaskGroup):
-        logger.info(f"Receive message {body.decode()}")
+        logger.info(f"Receive message {body}")
         logger.info(f"reply_to: {props.reply_to}")
         logger.info(f"correlation_id: {props.correlation_id}")
 
@@ -155,11 +168,16 @@ def handle_signal(signum, frame, consumer):
     logger.info(f"received signal {signal.Signals(signum).name}({signum})")
     consumer.stop()
 
-async def makeGeminiCall(message:str) -> str:
-    sleep = random.randrange(20,120)
+async def makeGeminiCall(raw:bytes) -> str:
+    request = AgentRequest.model_validate_json(raw)
+    logger.info(f"recevied request: {request}")
+    sleep = random.randrange(1,10) #(20,120)
     logger.info(f"gemini call will take {sleep} second(s)")
     await asyncio.sleep(sleep)
-    return f"Response for [{message}] after {sleep} secords"
+
+    reply = f"Response for [{request.userInput}] after {sleep} secords"
+    response = AgentResponse(agentId=request.agentId, chatId=request.chatId, modelReply=reply)
+    return response.model_dump_json()
 
 
 def main():
