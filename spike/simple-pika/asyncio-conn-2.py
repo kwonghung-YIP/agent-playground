@@ -123,8 +123,12 @@ class AsyncPikaConsumer(threading.Thread):
 
     def on_message(self, channel:Channel, method: Basic.Deliver, props: BasicProperties, body:bytes, taskGroup:asyncio.TaskGroup):
         logger.info(f"Receive message {body}")
-        logger.info(f"reply_to: {props.reply_to}")
-        logger.info(f"correlation_id: {props.correlation_id}")
+        logger.info(f"reply_to:{props.reply_to}")
+        logger.info(f"correlation_id:{props.correlation_id}")
+        logger.info(f"message_id:{props.message_id}")
+        logger.info(f"content_type:{props.content_type}")
+        for (key,value) in props.headers.items():
+            logger.info(f"header {key}:{value}")
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -141,11 +145,15 @@ class AsyncPikaConsumer(threading.Thread):
         self._connection.close()        
 
     def on_handler_done(self, task:asyncio.Task, props: BasicProperties):
-        logger.info(f"task done, publishing result to queue result:{task.result()}")
+        result = task.result()
+        logger.info(f"task done, publishing result to queue type:{type(result)}, value:{result}")
         self._channel.basic_publish(
             exchange="", routing_key=props.reply_to,
-            properties=pika.BasicProperties(correlation_id=props.correlation_id),
-            body=task.result()
+            properties=pika.BasicProperties(
+                content_type="application/json",
+                correlation_id=props.correlation_id
+            ),
+            body=result
         )
 
     async def consumeMessage(self) -> None:

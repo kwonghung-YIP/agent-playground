@@ -6,6 +6,7 @@
 - [Baeldung - Exchange, Queue, and Binding in RabbitMq](https://www.baeldung.com/java-rabbitmq-exchanges-queues-bindings)
 - [Rabbitmq Config file](https://www.rabbitmq.com/docs/configure#configuration-files)
 - [Rabbitmq:Definition Import at Node Boot Time](https://www.rabbitmq.com/docs/definitions#import-on-boot)
+- [Python-rabbitmq-pika](https://oneuptime.com/blog/post/2025-07-02-python-rabbitmq-pika/view)
 
 # Commands:
 
