@@ -151,7 +151,10 @@ class AsyncPikaConsumer(threading.Thread):
             exchange="", routing_key=props.reply_to,
             properties=pika.BasicProperties(
                 content_type="application/json",
-                correlation_id=props.correlation_id
+                correlation_id=props.correlation_id,
+                headers={
+                    "__TypeId__": props.headers.get('reply_to_typeId')
+                }
             ),
             body=result
         )
