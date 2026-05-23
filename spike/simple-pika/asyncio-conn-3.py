@@ -22,9 +22,6 @@ import signal
 from contextlib import asynccontextmanager
 from functools import partial
 
-import pika
-from pika.channel import Channel
-from pika.spec import Basic, BasicProperties
 from pika.adapters.select_connection import SelectConnection
 
 class PikaAsyncConnector(Thread):
