@@ -1,0 +1,57 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:4.3.0-management
+    container_name: rabbitmq
+    hostname: rabbitmq_node
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin 
+      RABBITMQ_DEFAULT_PASS: passwd
+    #  RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq.conf
+    
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      start_period: 10s
+      start_interval: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  python-dev:
+    container_name: python
+
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+      args:
+        - MAIN_FILE=select-conn-1.py
+    
+    environment:
+      - UV_NO_DEV=0
+    
+    # https://docs.docker.com/compose/how-tos/file-watch/
+    # https://docs.docker.com/reference/compose-file/develop/
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /app
+          include:
+            - "*.py"
+          ignore:
+            - .venv/
+          initial_sync: true
+
+        - action: rebuild
+          path: uv.lock
+
+    depends_on:
+      rabbitmq:
+        # condition: service_completed_successfully
+        # condition: service_started
+        condition: service_healthy
+
+    

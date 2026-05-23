@@ -23,4 +23,9 @@ docker exec rabbitmq rabbitmq-diagnostics -q ping
 docker exec -it rabbitmq /bin/sh
 chmod +x /etc/rabbitmq/init-setup.sh
 docker exec rabbitmq /etc/rabbitmq/init-setup.sh
+
+docker compose -f docker-compose-dev.yaml up --watch --build
+docker compose -f docker-compose-dev.yaml up --watch
+docker compose -f docker-compose-dev.yaml up rabbitmq
+uv run --env-file .env select-conn-1.py 
 '''
