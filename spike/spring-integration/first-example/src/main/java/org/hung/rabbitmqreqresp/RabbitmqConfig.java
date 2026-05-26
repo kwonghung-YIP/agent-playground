@@ -117,7 +117,8 @@ public class RabbitmqConfig {
                     })
                     .handle(
                         Amqp.asyncOutboundGateway(asyncRabbitTemplate)
-                                .routingKey("request"))
+                                .exchangeName("AgentRequest")
+                                .routingKey("AgentRequest"))
                         //.log()
                         /*.enrichHeaders(h -> {
                             h.header(JsonHeaders.TYPE_ID,AgentResponse.class,true);
@@ -144,7 +145,7 @@ public class RabbitmqConfig {
         Future<AgentResponse> replyAsResponse(AgentRequest request);
     }
 
-    //@Component
+    @Component
     static public class MyApplicationRunner2 implements ApplicationRunner {
 
         final private MyAsyncGateway asyncGateway;
@@ -193,7 +194,7 @@ public class RabbitmqConfig {
         Future<String> testing(String input);
     }
 
-    @Component
+    //@Component
     static public class MyApplicationRunner3 implements ApplicationRunner {
 
         final private ClaimInOutGateway gateway;
