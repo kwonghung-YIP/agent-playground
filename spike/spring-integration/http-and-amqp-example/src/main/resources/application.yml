@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: http-and-amqp-example
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db1
+    username: admin
+    password: passwd
+
+server:
+  servlet:
+    context-path: /demo
+      
