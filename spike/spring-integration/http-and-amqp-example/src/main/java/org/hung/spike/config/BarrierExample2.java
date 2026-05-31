@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.hung.spike.config.HttpConfiguration.IncomingRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.http.dsl.Http;
 
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
+@Profile("disabled")
 public class BarrierExample2 {
 
     @Bean
