@@ -8,7 +8,7 @@ import org.springframework.integration.annotation.MessagingGateway;
 import reactor.core.publisher.Mono;
 
 @MessagingGateway(defaultRequestChannel = "agent-request")
-public interface AgentGateway<REQ extends AgentRequest, RESP extends AgentResponse> {
+public interface SimpleAgentGateway<REQ extends AgentRequest, RESP extends AgentResponse> {
 
     public Future<RESP> chatFuture(REQ request);
 

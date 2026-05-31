@@ -3,11 +3,12 @@ package org.hung.spike.config;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.hung.spike.gateway.AgentGateway;
+import org.hung.spike.gateway.SimpleAgentGateway;
 import org.hung.spike.gateway.AgentRequest;
 import org.hung.spike.gateway.AgentResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.http.dsl.Http;
 
@@ -16,7 +17,8 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Configuration
-public class SimpleAsyncGatewayExample<REQ extends AgentRequest, RESP extends AgentResponse> {
+@Profile("disabled")
+public class SimpleAsyncGatewayWithHttpInboundAdapter<REQ extends AgentRequest, RESP extends AgentResponse> {
     
     @Bean
     public IntegrationFlow simpleAsyncGateway() {
@@ -41,7 +43,7 @@ public class SimpleAsyncGatewayExample<REQ extends AgentRequest, RESP extends Ag
 
     @Bean
     public IntegrationFlow httpCompetableMainflow(
-        AgentGateway<AgentRequest, AgentResponse> gateway) {
+        SimpleAgentGateway<AgentRequest, AgentResponse> gateway) {
         return IntegrationFlow
             .from(Http
                 .inboundChannelAdapter("/simple-async-gateway/competable")
@@ -62,7 +64,7 @@ public class SimpleAsyncGatewayExample<REQ extends AgentRequest, RESP extends Ag
 
     @Bean
     public IntegrationFlow httpMonoMainflow(
-        AgentGateway<AgentRequest, AgentResponse> gateway) {
+        SimpleAgentGateway<AgentRequest, AgentResponse> gateway) {
         return IntegrationFlow
             .from(Http
                 .inboundChannelAdapter("/simple-async-gateway/mono")
