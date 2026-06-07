@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: agent-response-dispatcher
+
+  docker:
+    compose:
+      start:
+        command: start
+      stop:
+        command: stop
+
+  jpa:
+    generate-ddl: true
