@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class AgentProxy {
         agentOutChannel.send(message);
     }
 
+    @ServiceActivator(inputChannel = "agent-in-channel")
     public void dispatchResponse(AgentResponse response) {
         // 1. Get the Repo bean for the flow type provided by agent response.
         var repo = this.repoMapping.get(response.getFlowType());
@@ -39,7 +41,7 @@ public class AgentProxy {
             // 3. Identify the handler function by flow type and response type.
             var handler = flow.getHandlerMapping().get(response.getType());
             // 4. Pass the response and this agent proxy to the handler function.
-            handler.handle(this, response);
+            //handler.handle(this, response);
         });
     }
     

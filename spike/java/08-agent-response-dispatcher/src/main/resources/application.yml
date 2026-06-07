@@ -11,3 +11,14 @@ spring:
 
   jpa:
     generate-ddl: true
+
+demo:
+  rabbitmq:
+    outbound:
+      exchangeName: agent-request
+      queueName: agent-request
+      routingKey: agent-request
+    inbound:
+      exchangeName: agent-response
+      queueName: agent-response
+      routingKey: agent-response

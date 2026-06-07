@@ -2,6 +2,9 @@ package hung.spike.agentflow.agent;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import hung.spike.agentflow.model.Flow;
 import lombok.Data;
 import tools.jackson.databind.JsonNode;
@@ -19,10 +22,29 @@ public class AgentResponse {
     final private String agentId;
     final private Long chatId;
     final private UUID requestId;
-    final private UUID responseId = UUID.randomUUID();
+    final private UUID responseId;
     final private Type type;
     
     private JsonNode modelOutput;
+
+    @JsonCreator
+    public AgentResponse(
+        @JsonProperty("flowType")   Flow.Type flowType,
+        @JsonProperty("flowId")     UUID flowId,
+        @JsonProperty("agentId")    String agentId,
+        @JsonProperty("chatId")     Long chatId,
+        @JsonProperty("requestId")  UUID requestId,
+        @JsonProperty("responseId") UUID responseId,
+        @JsonProperty("type")       Type type
+    ) {
+        this.flowType = flowType;
+        this.flowId = flowId;
+        this.agentId = agentId;
+        this.chatId = chatId;
+        this.requestId = requestId;
+        this.responseId = responseId;
+        this.type = type;
+    }
 
     public AgentResponse(AgentRequest request, Type type) {
         this.flowType = request.getFlowType();
@@ -30,6 +52,7 @@ public class AgentResponse {
         this.agentId = request.getAgentId();
         this.chatId = request.getChatId();
         this.requestId = request.getRequestId();
+        this.responseId = UUID.randomUUID();
         this.type = type;
     }
 
