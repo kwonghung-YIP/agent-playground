@@ -18,7 +18,7 @@ public class AgentRequest {
     final private Flow.Type flowType;
     final private UUID flowId;
     final private String agentId;
-    final private Long chatId;
+    private UUID chatId;
     final private UUID requestId = UUID.randomUUID();
     final private Type type;
     

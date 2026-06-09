@@ -20,7 +20,7 @@ public class AgentResponse {
     final private Flow.Type flowType;
     final private UUID flowId;
     final private String agentId;
-    final private Long chatId;
+    private UUID chatId;
     final private UUID requestId;
     final private UUID responseId;
     final private Type type;
@@ -32,7 +32,7 @@ public class AgentResponse {
         @JsonProperty("flowType")   Flow.Type flowType,
         @JsonProperty("flowId")     UUID flowId,
         @JsonProperty("agentId")    String agentId,
-        @JsonProperty("chatId")     Long chatId,
+        @JsonProperty("chatId")     UUID chatId,
         @JsonProperty("requestId")  UUID requestId,
         @JsonProperty("responseId") UUID responseId,
         @JsonProperty("type")       Type type
@@ -56,8 +56,4 @@ public class AgentResponse {
         this.type = type;
     }
 
-    @FunctionalInterface
-    public interface Handler {
-        void handle(AgentProxy agent, AgentResponse resp);
-    }
 }

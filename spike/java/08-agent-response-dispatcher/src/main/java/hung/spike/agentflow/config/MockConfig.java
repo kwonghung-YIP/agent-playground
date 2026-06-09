@@ -1,5 +1,7 @@
 package hung.spike.agentflow.config;
 
+import java.util.UUID;
+
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +56,9 @@ public class MockConfig {
         var userInput = request.getUserInput();
         var modelOutput = objectMapper.createObjectNode();
 
+        UUID chatId = request.getChatId();
+        chatId = (chatId == null) ? UUID.randomUUID() : chatId;
+
         switch (request.getType()) {
             case AgentRequest.Type.WRITER_FIRST_DRAFT:
                 String idea = userInput.get("idea").asString();
@@ -62,6 +67,7 @@ public class MockConfig {
                 modelOutput.put("story","Base on the story idea, here is my first draft [.....]");
 
                 response = new AgentResponse(request, AgentResponse.Type.WRITER_STORY);
+                response.setChatId(chatId);
                 response.setModelOutput(modelOutput);
                 return response;
             case AgentRequest.Type.WRITER_REVISE_STORY:
@@ -87,32 +93,11 @@ public class MockConfig {
                 }
 
                 response = new AgentResponse(request, AgentResponse.Type.EDITOR_COMMENT);
+                response.setChatId(chatId);
                 response.setModelOutput(modelOutput);
                 return response;
             default:
                 return null;
         }
-
-        /*
-        var response = new AgentResponse(request);
-        var output = objectMapper.createObjectNode();
-        if (request.getAgentId().startsWith("writer")) {
-            response.setType(AgentResponse.Type.WRITER_RESPONSE);
-            output.put("input", request.getUserInput());
-            output.put("story","Base on your idea/comment, here is my story [.....]");
-        } else if (request.getAgentId().startsWith("editor")) {
-            response.setType(AgentResponse.Type.EDITOR_RESPONSE);
-            output.put("input", request.getUserInput());
-            if (Math.random() > 0.97) {
-                output.put("hasComment",false);
-                output.put("comment","I have no further comment on your story.");  
-            } else {
-                output.put("hasComment",true);
-                output.put("comment","Base on your story, here is my comment [.....]");
-            }
-        }
-        response.setModelOutput(output);
-        return response;
-        */
     }
 }

@@ -1,17 +1,13 @@
 package hung.spike.agentflow.model;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
 
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import hung.spike.agentflow.agent.AgentResponse;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
@@ -44,8 +40,5 @@ public abstract class Flow {
 
     @Version
     private Long version;
-
-
-    public abstract Map<AgentResponse.Type, AgentResponse.Handler> getHandlerMapping();
     
 }
