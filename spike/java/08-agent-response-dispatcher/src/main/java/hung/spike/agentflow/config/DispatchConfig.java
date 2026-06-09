@@ -10,18 +10,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.repository.CrudRepository;
 
 import hung.spike.agentflow.model.Flow;
-import hung.spike.agentflow.repo.StoryRepository;
+import hung.spike.agentflow.repo.FlowRepository;
 
-@Configuration
+//@Configuration
 public class DispatchConfig {
 
     @Autowired
-    private StoryRepository storyRepo;
+    private FlowRepository storyRepo;
 
-    @Bean
+    //@Bean
     public Map<Flow.Type, CrudRepository<? extends Flow, UUID>> flowTypeToRepoMapping() {
         var mapping = new HashMap<Flow.Type, CrudRepository<? extends Flow, UUID>>();
         mapping.put(Flow.Type.STORY, storyRepo);
         return mapping;
+    }
+
+    public CrudRepository<?, UUID> getRepo(Flow.Type type) {
+        return storyRepo;
     }
 }

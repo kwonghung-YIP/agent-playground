@@ -30,7 +30,7 @@ public class StoryController {
     @PostMapping(consumes = {"text/plain"})
     public UUID createStory(@RequestBody String idea) {
         var story = service.requestFirstDraft(idea);
-        return story.getStoryId();
+        return story.getFlowId();
     }
 
 }

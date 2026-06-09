@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import hung.spike.agentflow.agent.AgentProxy;
 import hung.spike.agentflow.agent.AgentRequest;
 import hung.spike.agentflow.model.Story;
-import hung.spike.agentflow.repo.StoryRepository;
+import hung.spike.agentflow.repo.FlowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
@@ -16,7 +16,7 @@ import tools.jackson.databind.ObjectMapper;
 public class StoryService {
 
     final private ObjectMapper objectMapper;
-    final private StoryRepository repository;
+    final private FlowRepository repository;
     final private AgentProxy agent;
 
     public Story requestFirstDraft(String idea) {

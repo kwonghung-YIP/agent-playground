@@ -1,6 +1,5 @@
 package hung.spike.agentflow.agent;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class AgentProxy {
 
-    final private Map<Flow.Type, CrudRepository<? extends Flow, UUID>> repoMapping;
+    final private CrudRepository<Flow, UUID> flowRepo;
 
     @Qualifier("agentOutChannel")
     final private MessageChannel agentOutChannel;
@@ -33,15 +32,15 @@ public class AgentProxy {
 
     @ServiceActivator(inputChannel = "agent-in-channel")
     public void dispatchResponse(AgentResponse response) {
-        // 1. Get the Repo bean for the flow type provided by agent response.
-        var repo = this.repoMapping.get(response.getFlowType());
-        // 2. Search the flow instance by flow type and Id in the response.
-        Optional<? extends Flow> result = repo.findById(response.getFlowId());
+        // 1. Search the flow instance by flow type and Id in the response.
+        Optional<Flow> result = flowRepo.findById(response.getFlowId());
         result.ifPresent(flow -> {
-            // 3. Identify the handler function by flow type and response type.
+            // 2. Identify the handler function by flow type and response type.
             var handler = flow.getHandlerMapping().get(response.getType());
-            // 4. Pass the response and this agent proxy to the handler function.
-            //handler.handle(this, response);
+            // 3. Pass the response and this agent proxy to the handler function.
+            handler.handle(this, response);
+            // 4. Save any change on flow after invoke the handler
+            flowRepo.save(flow);
         });
     }
     

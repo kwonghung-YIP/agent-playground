@@ -5,9 +5,9 @@ import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import hung.spike.agentflow.model.Story;
+import hung.spike.agentflow.model.Flow;
 
 @Repository
-public interface StoryRepository extends CrudRepository<Story, UUID> {
+public interface FlowRepository extends CrudRepository<Flow, UUID> {
 
 }
