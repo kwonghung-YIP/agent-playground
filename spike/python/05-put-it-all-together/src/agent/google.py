@@ -20,6 +20,11 @@ class AsyncAgent:
         self._config:AgentConfig = None
         self._mock:bool = mock
 
+    @staticmethod
+    async def call_model_method(request:AgentRequest) -> AgentResponse:
+        agent = AsyncAgent(request.agentId, True)
+        return await agent.create_content(request)
+
     async def create_content(self, request:AgentRequest) -> AgentResponse:
         logger.info("load the Agent Config - agentId:[%s]", self._id)
         self._config = await loadAgentConfig(self._id)
@@ -64,8 +69,10 @@ class AsyncAgent:
             pgSession.add(modelRespRec)
             await pgSession.flush()
 
+            logger.info("add model response to chat...")
             output = self.add_response_to_chat(modelRespRec, chat, modelResp)
 
+            logger.info("construct AgentResponse...")
             agentResponse = AgentResponse(
                 responseId=modelRespRec.responseId, 
                 type=self._config.mapResponseType(request.type),

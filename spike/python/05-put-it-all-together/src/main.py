@@ -7,26 +7,51 @@ import logging
 import asyncio
 import uuid
 from typing import Optional
+from threading import Thread
+import signal
+import os
+from functools import partial
+
+from messaging.rabbitmq_pika import PikaAsyncGateway
 
 LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(taskName)s|%(funcName)s : %(message)s"
 
 logger = logging.getLogger(__name__)
 
-async def main():
-    request: AgentRequest = AgentRequest(
-        requestId = uuid.uuid4(), type = "WRITER_FIRST_DRAFT",
-        flowId = uuid.uuid4(), flowType = "STORY",
-        agentId="writer#1", chatId = None,
-        userInput = { "idea": "Tell me a story about how Sponge learn self-aware!" })
-    
-    agent: AsyncAgent = AsyncAgent(request.agentId)
+def handle_signal(signum, frame, threadPool:list[Thread]) -> None:
+    logger.info("received signal %s(%s)",signal.Signals(signum).name, signum)
+    for thread in threadPool:
+        thread.stop()
 
-    response: AgentResponse = await agent.create_content(request)
-    
-    logger.info("%s", response)
+def joinThreads(threadPool:list[Thread],timeout:float) -> None:
+    activeThread = len(threadPool)
+    while activeThread > 0:
+        activeThread = 0
+        for thread in threadPool:
+            if thread.is_alive():
+                logger.debug("Thread %s still active, waiting for %d sec...", thread.name, timeout)
+                activeThread += 1
+                thread.join(timeout)
+    logger.info("All threads stopped.")
 
-
+def main() -> None:
+    """
+    Keep the main thread running until all child thread completed.
+    """
+    logger.info("Start main....")
+    host = os.getenv("RABBITMQ_HOST","localhost")
+    try:
+        messageThread = PikaAsyncGateway(host=host, handler=AsyncAgent.call_model_method)
+        signal.signal(signal.SIGTERM, partial(handle_signal, threadPool=[messageThread]))
+        
+        messageThread.start()
+        joinThreads([messageThread],5)
+    except KeyboardInterrupt:
+        logger.info("main() interrupted by keyboard...")
+        messageThread.stop()
+    finally:
+        joinThreads([messageThread],1)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
-    asyncio.run(main())
+    main()
