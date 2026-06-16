@@ -5,7 +5,7 @@ import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select, insert, update, delete, ForeignKey, Column
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, joinedload
 from sqlalchemy import String, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 
@@ -55,9 +55,9 @@ class ChatRepository:
         self._session: AsyncSession = session
 
     async def findById(self, chatId: uuid.UUID) -> Optional[Chat]:
-        stmt = select(Chat).where(Chat.id==chatId)
+        stmt = select(Chat).options(joinedload(Chat.messages)).where(Chat.id==chatId)
         result = await self._session.scalars(stmt)
-        return result.one()
+        return result.unique().one()
 
     async def create(self, chat: Chat) -> None:
         self._session.add(chat)

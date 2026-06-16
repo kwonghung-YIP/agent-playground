@@ -59,7 +59,8 @@ class AsyncAgent:
                     )
                     logger.info(modelResp)
 
-                with open("google-gen-content-resp.json", mode="w") as f:
+                mockJsonFile = mockPath / f"{request.agentId}-{request.type}-gen-content-resp.json"
+                with open(mockJsonFile, mode="w") as f:
                     f.write(modelResp.model_dump_json(indent=4))
 
             logger.info("save the model response...")

@@ -132,8 +132,5 @@ templates:
       the story based on the provided comments:
 
       Editor's comments:
-      {{ userInput.comments }}
+      {{ userInput.comment }}
   
-
-
-  #EDITOR_REVIEW_STORY: |-
