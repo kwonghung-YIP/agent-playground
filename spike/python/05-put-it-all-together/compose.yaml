@@ -46,3 +46,41 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  python-app:
+    container_name: python-app
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - MAIN_FILE=main.py
+    
+    environment:
+      UV_NO_DEV: 0
+      UV_NO_ENV_FILE: true
+      RABBITMQ_HOST: rabbitmq
+      POSTGRES_HOST: postgres
+      MOCK_LLM_CALLS: true
+    
+    # https://docs.docker.com/compose/how-tos/file-watch/
+    # https://docs.docker.com/reference/compose-file/develop/
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./src
+          target: /app
+          include:
+            - "*.py"
+          ignore:
+            - .venv/
+          initial_sync: true
+
+        - action: rebuild
+          path: uv.lock
+
+    depends_on:
+      rabbitmq:
+        # condition: service_started
+        condition: service_healthy
+        # condition: service_completed_successfully

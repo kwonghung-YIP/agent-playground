@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 import json
+import os
 
 from google.genai.client import Client, AsyncClient
 from google.genai.types import Content, Part, GenerateContentConfig, GenerateContentResponse
@@ -15,14 +16,17 @@ mockPath = Path("./resources/agent-mock/google-genai")
 
 class AsyncAgent:
 
-    def __init__(self, agentId:str, mock:bool=True):
+    def __init__(self, agentId:str, pgHost:str, mock:bool):
         self._id:str = agentId
         self._config:AgentConfig = None
+        self._pgHost:str = pgHost
         self._mock:bool = mock
 
     @staticmethod
     async def call_model_method(request:AgentRequest) -> AgentResponse:
-        agent = AsyncAgent(request.agentId, True)
+        pgHost = os.getenv("POSTGRES_HOST","localhost")
+        mock = os.getenv("MOCK_LLM_CALLS", True)
+        agent = AsyncAgent(request.agentId, pgHost, mock)
         return await agent.create_content(request)
 
     async def create_content(self, request:AgentRequest) -> AgentResponse:
@@ -39,7 +43,7 @@ class AsyncAgent:
             ]
         )
 
-        async with AsyncPostgresSession("admin","passwd") as pgSession:
+        async with AsyncPostgresSession("admin", "passwd", pgHost=self._pgHost) as pgSession:
             logger.info("construct the chat history...")
             chatRepo = ChatRepository(pgSession)
             chat:Chat = await self.load_chat(chatRepo, request)
