@@ -95,8 +95,8 @@ rules:
     instead on action, dialogue, and emotion.
 
 response_type_mapping:
-    WRITER_FIRST_DRAFT: WRITE_STORY
-    WRITER_REVISE_STORY: WRITE_STORY
+    WRITER_FIRST_DRAFT: WRITER_STORY
+    WRITER_REVISE_STORY: WRITER_STORY
 
 templates:
   system-instruction:

@@ -4,6 +4,7 @@ spring:
 
   docker:
     compose:
+      enabled: false
       start:
         command: start
       stop:
@@ -11,6 +12,18 @@ spring:
 
   jpa:
     generate-ddl: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db1
+    username: admin
+    password: passwd
+
+  rabbitmq:
+    # addresses: amqp://admin:passwd@localhost:5672/
+    host: localhost
+    port: 5672
+    username: admin
+    password: passwd
 
 demo:
   rabbitmq:

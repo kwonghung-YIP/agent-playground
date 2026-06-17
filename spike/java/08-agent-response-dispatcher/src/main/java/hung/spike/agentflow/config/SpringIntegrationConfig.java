@@ -11,6 +11,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.Transformers;
 import org.springframework.messaging.MessageChannel;
 
+import hung.spike.agentflow.agent.AgentResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,7 +52,7 @@ public class SpringIntegrationConfig {
     public IntegrationFlow agentInFlow(ConnectionFactory connectionFactory) {
         return IntegrationFlow
             .from(Amqp.inboundAdapter(connectionFactory, inboundQueueName))
-            .transform(Transformers.fromJson())
+            .transform(Transformers.fromJson(AgentResponse.class))
             .log()
             //.handle((p,h) -> {
             //    log.info("here!");

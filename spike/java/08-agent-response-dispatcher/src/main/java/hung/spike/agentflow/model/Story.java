@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,10 +41,12 @@ public class Story extends Flow {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "story_editions", joinColumns = @JoinColumn(name = "flow_id"))
+    @Column(columnDefinition = "TEXT")
     private List<String> stories = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "story_comments", joinColumns = @JoinColumn(name = "flow_id"))
+    @Column(columnDefinition = "TEXT")
     private List<String> comments = new ArrayList<>();
 
     private Status status = Status.INIT;

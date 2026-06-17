@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.dsl.Amqp;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.Transformers;
@@ -20,6 +21,7 @@ import tools.jackson.databind.ObjectMapper;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
+@Profile("disabled")
 public class MockConfig {
 
     @Value("${demo.rabbitmq.outbound.queueName}")

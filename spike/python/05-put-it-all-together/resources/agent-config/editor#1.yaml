@@ -102,7 +102,8 @@ templates:
   model-output:
     google-genai: |-
       {
-        "story": {{ response.text|tojson }}
+        "hasComment": true,
+        "comment": {{ response.text|tojson }}
       }
 
   request:
