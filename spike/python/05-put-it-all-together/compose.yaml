@@ -63,6 +63,9 @@ services:
       POSTGRES_HOST: postgres
       MOCK_LLM_CALLS: true
     
+    secrets:
+      - google-api-key
+
     # https://docs.docker.com/compose/how-tos/file-watch/
     # https://docs.docker.com/reference/compose-file/develop/
     develop:
@@ -84,3 +87,7 @@ services:
         # condition: service_started
         condition: service_healthy
         # condition: service_completed_successfully
+
+secrets:
+  google-api-key:
+    file: ./.google-api-key

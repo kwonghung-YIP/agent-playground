@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 import json
 import os
+import re
 
 from google.genai.client import Client, AsyncClient
 from google.genai.types import Content, Part, GenerateContentConfig, GenerateContentResponse
@@ -25,7 +26,9 @@ class AsyncAgent:
     @staticmethod
     async def call_model_method(request:AgentRequest) -> AgentResponse:
         pgHost = os.getenv("POSTGRES_HOST","localhost")
-        mock = os.getenv("MOCK_LLM_CALLS", True)
+        mock = os.getenv("MOCK_LLM_CALLS", "true")
+        mock = not mock.lower() in ['false', 'no']
+        logger.info("Mock LLM output: %s", mock)
         agent = AsyncAgent(request.agentId, pgHost, mock)
         return await agent.create_content(request)
 
@@ -50,10 +53,12 @@ class AsyncAgent:
             chatHistory:Content = self.chat_to_content(chat)
 
             if self._mock:
-                modelResp:GenerateContentResponse = self.load_mock_response(request)
+                modelResp:GenerateContentResponse = self.load_latest_mock_response(request)
             else:
+                apikey = self.load_apikey()
+
                 logger.info("call google-genai generate_content API...")
-                async with Client().aio as client:
+                async with Client(api_key=apikey).aio as client:
                     modelResp = await client.models.generate_content(
                         model = self._config.model,
                         contents = chatHistory,
@@ -61,11 +66,8 @@ class AsyncAgent:
                             system_instruction = systemInst
                         )
                     )
-                    logger.info(modelResp)
 
-                mockJsonFile = mockPath / f"{request.agentId}-{request.type}-gen-content-resp.json"
-                with open(mockJsonFile, mode="w") as f:
-                    f.write(modelResp.model_dump_json(indent=4))
+                self.save_response_to_mock(request, modelResp)
 
             logger.info("save the model response...")
             modelRespRec = ModelResponse(agentId=request.agentId, requestId=request.requestId,
@@ -90,6 +92,19 @@ class AsyncAgent:
             
             return agentResponse
 
+    def load_apikey(self) -> str|None:
+        logger.info("get apikey from GOOGLE_API_KEY env variable...")
+        apikey = os.getenv("GOOGLE_API_KEY")
+        if apikey is not None:
+            return apikey
+        
+        secret = Path("/run/secrets") / "google-api-key"
+        logger.info("get apikey from docker secret %s", secret)
+        if secret.is_file():
+            return secret.read_text()
+        
+        logger.info("no google-api-key was defined.")
+
     async def load_chat(self, chatRepo:ChatRepository, request:AgentRequest) -> Chat:
         if request.chatId is None:
             chat:Chat = Chat(agentId=request.agentId)
@@ -111,11 +126,29 @@ class AsyncAgent:
         
         return history
     
-    def load_mock_response(self, request:AgentRequest) -> GenerateContentResponse:
-        mockJsonFile = mockPath / f"{request.agentId}-{request.type}-gen-content-resp.json"
-        logger.info("Return generate_content mock response from:[%s]", mockJsonFile)
-        response = GenerateContentResponse.model_validate_json(mockJsonFile.read_text())
-        return response
+    def save_response_to_mock(self, request:AgentRequest, response:GenerateContentResponse) -> None:
+        filePrefix = f"{request.agentId}-{request.type}-gen-content-resp"
+
+        cnt:int = 1
+        mockfiles = list(mockPath.glob(f"{filePrefix}-*.json"))
+        mockfiles.sort()
+        if mockfiles:
+            match = re.search(f"{filePrefix}-(\d+)", mockfiles[-1].stem)
+            cnt = int(match.group(1)) if match else 1
+            
+        mockJsonFile = mockPath / f"{filePrefix}-{cnt+1:05d}.json"
+        with open(mockJsonFile, mode="w") as f:
+            f.write(response.model_dump_json(indent=4))
+
+    def load_latest_mock_response(self, request:AgentRequest) -> GenerateContentResponse:
+        filePrefix = f"{request.agentId}-{request.type}-gen-content-resp"
+
+        mockfiles = list(mockPath.glob(f"{filePrefix}-*.json"))
+        mockfiles.sort()
+        if mockfiles:
+            logger.info("Return generate_content mock response from:[%s]", mockfiles[-1])
+            response = GenerateContentResponse.model_validate_json(mockfiles[-1].read_text())
+            return response
 
     def add_response_to_chat(self, record: ModelResponse, chat:Chat, response:GenerateContentResponse) -> str:
         output:str = self._config.renderGoogleModelOutput(response)

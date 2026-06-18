@@ -1,0 +1,79 @@
+{
+    "sdk_http_response": {
+        "headers": {
+            "x-gemini-service-tier": "standard",
+            "content-type": "application/json; charset=UTF-8",
+            "vary": "Origin, X-Origin, Referer",
+            "content-encoding": "gzip",
+            "date": "Thu, 18 Jun 2026 02:15:45 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "x-xss-protection": "0",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "server-timing": "gfet4t7; dur=4793",
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "transfer-encoding": "chunked"
+        },
+        "body": null
+    },
+    "candidates": [
+        {
+            "content": {
+                "parts": [
+                    {
+                        "media_resolution": null,
+                        "code_execution_result": null,
+                        "executable_code": null,
+                        "file_data": null,
+                        "function_call": null,
+                        "function_response": null,
+                        "inline_data": null,
+                        "text": "Once upon a time, in the sparkling, sun-drenched waters of Bikini Bottom, lived a sponge named SpongeBob. SpongeBob wasn't just any sponge; he was a sponge with a heart as bubbly as the seafoam he loved to collect. His days were filled with the clang of spatulas at the Krusty Krab, the joy of jellyfishing with his best pal Patrick, and the constant, cheerful hum of his pineapple home.\n\nBut one day, a shimmering portal, unlike any jellyfish net he’d ever seen, flickered open above the coral reefs. Out tumbled a creature of pure, dazzling color, with a mane like a rainbow and eyes that sparkled like the rarest sea gems. It was a Little Pony, named Starlight Glimmer, who had accidentally galloped through a dimensional rift.\n\nSpongeBob, who was busy practicing his spatula flips, stopped dead in his tracks. His square little eyes widened, his porous body seemed to shimmer, and his usual boisterous laugh caught in his throat. He had never, in all his years of living underwater, seen anything so… bright! So graceful! So utterly, wonderfully *different*!\n\nStarlight Glimmer, a bit dazed from her unexpected journey, found herself on the soft, sandy bottom of the ocean. The world was a blur of blues and greens, and the quiet was a stark contrast to the tinkling music of her home. Then, she saw him. A bright yellow, strangely shaped creature, staring at her with an expression that was both surprised and… kind.\n\n“Oh, hello there!” SpongeBob finally managed, his voice a little squeaky. He wiggled his fingers in what he hoped was a friendly wave. “I’m SpongeBob! Are you… lost?”\n\nStarlight Glimmer, who was used to speaking her mind, tilted her head. “Lost? Perhaps. This is certainly not Equestria. And you are… a very interesting shape.”\n\nFrom that moment on, a most unusual friendship began to bloom. SpongeBob, with his boundless enthusiasm, showed Starlight the wonders of Bikini Bottom. He took her on a jellyfishing expedition (though Starlight found it a bit slippery for her hooves). He introduced her to the Krabby Patty, which, to her surprise, tasted like sunshine and pickles. He even tried to teach her how to blow bubbles, though Starlight’s breath was much too gentle to create a proper bubble.\n\nStarlight, in turn, shared stories of her world, of friendship, magic, and the importance of understanding each other. She showed SpongeBob how to see the beauty in quiet moments, and how sometimes, even a different kind of magic could be just as powerful. She even, with a flick of her horn, created a small, sparkling illusion of a sunny meadow for SpongeBob to enjoy, right there on the ocean floor.\n\nAs they spent more time together, SpongeBob found his heart doing a funny little flip whenever Starlight trotted by. Her laughter, like tiny bells, made him feel warm all over. He loved the way her rainbow mane seemed to catch the light, and the wisdom in her gentle eyes. He realized he wasn't just fond of her; he was falling in love, as deeply and as brightly as the deepest ocean trench.\n\nOne afternoon, while watching Starlight practice her magic, a wave of courage washed over SpongeBob. He took a deep, sea-watery breath.\n\n“Starlight,” he began, his voice a little wobbly. “I know we’re very different. I’m a sponge, and you’re a pony from another world. But… I think you’re the most wonderful creature I’ve ever met. My heart feels like a bouncy castle when you’re around. I… I think I’m in love with you.”\n\nStarlight Glimmer looked at SpongeBob, her sparkling eyes filled with a gentle understanding. She nudged him softly with her nose. “SpongeBob,” she said, her voice like a soft melody. “Your heart is as big and as bright as the ocean itself. And though our worlds are different, and our shapes are not the same, I have come to care for you very, very much. You have shown me the joy of laughter, the taste of a truly unique adventure, and the kindness that can exist in even the most unexpected places. Your friendship is a treasure to me.”\n\nShe couldn’t exactly return his love in the same way, for their worlds were too far apart, and their natures too different. But she could offer him something just as precious: a promise of unwavering friendship and the knowledge that his brave, bubbly heart had touched hers.\n\nAnd so, SpongeBob and Starlight continued their unusual friendship. SpongeBob never forgot the bright, magical pony who had stumbled into his world. And Starlight Glimmer, though she eventually found her way back to Equestria, carried with her the memory of a brave, kind, and extraordinarily cheerful sponge who had taught her that love, in its many forms, could be as boundless and beautiful as the sea itself. And sometimes, when the light hit the ocean just right, she imagined she could see a tiny, sparkling bubble rising from the depths, filled with the echo of SpongeBob’s happy, bubbly laugh.",
+                        "thought": null,
+                        "thought_signature": null,
+                        "video_metadata": null,
+                        "tool_call": null,
+                        "tool_response": null,
+                        "part_metadata": null
+                    }
+                ],
+                "role": "model"
+            },
+            "citation_metadata": null,
+            "finish_message": null,
+            "token_count": null,
+            "finish_reason": "STOP",
+            "grounding_metadata": null,
+            "avg_logprobs": null,
+            "index": 0,
+            "logprobs_result": null,
+            "safety_ratings": null,
+            "url_context_metadata": null
+        }
+    ],
+    "create_time": null,
+    "model_version": "gemini-2.5-flash-lite",
+    "prompt_feedback": null,
+    "response_id": "zVQzauOgDNSUkdUPm5SCiAs",
+    "usage_metadata": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1107,
+        "candidates_tokens_details": null,
+        "prompt_token_count": 898,
+        "prompt_tokens_details": [
+            {
+                "modality": "TEXT",
+                "token_count": 898
+            }
+        ],
+        "thoughts_token_count": null,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 2005,
+        "traffic_type": null
+    },
+    "model_status": null,
+    "automatic_function_calling_history": [],
+    "parsed": null
+}

@@ -1,0 +1,79 @@
+{
+    "sdk_http_response": {
+        "headers": {
+            "x-gemini-service-tier": "standard",
+            "content-type": "application/json; charset=UTF-8",
+            "vary": "Origin, X-Origin, Referer",
+            "content-encoding": "gzip",
+            "date": "Thu, 18 Jun 2026 11:07:53 GMT",
+            "server": "scaffolding on HTTPServer2",
+            "x-xss-protection": "0",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "server-timing": "gfet4t7; dur=18174",
+            "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+            "transfer-encoding": "chunked"
+        },
+        "body": null
+    },
+    "candidates": [
+        {
+            "content": {
+                "parts": [
+                    {
+                        "media_resolution": null,
+                        "code_execution_result": null,
+                        "executable_code": null,
+                        "file_data": null,
+                        "function_call": null,
+                        "function_response": null,
+                        "inline_data": null,
+                        "text": "Once upon a time, in the sparkling, bubbly ocean city of Bikini Bottom, lived a cheerful little sponge named SpongeBob SquarePants. SpongeBob was known throughout the coral reefs for his infectious giggle, his unparalleled talent for flipping Krabby Patties, and his boundless love for his best friend, Patrick Star. His days were filled with laughter, jellyfishing, and the delightful aroma of the Krusty Krab.\n\nOne sun-dappled afternoon, while SpongeBob was practicing his karate chops on a particularly stubborn piece of kelp, a shimmering, rainbow-colored portal swirled open right in the middle of Goo Lagoon. From the portal emerged not a sea creature, but something quite extraordinary: a tiny, winged horse, no bigger than SpongeBob's spatula! Her mane was spun from moonlight, her wings shimmered like a thousand dewdrops, and her hooves clicked softly on the sandy seabed.\n\nThis was not just any little horse; this was Twinklehoof, a playful pixie-pony from the land of Equestria, who had, quite by accident, stumbled through a magical gateway. Twinklehoof, usually so brave, felt a flutter of nervousness. The ocean was so… wet!\n\nSpongeBob, who had never seen anything so wondrous, gasped. His square eyes widened, and his usual boisterous laugh quieted to a soft, amazed sigh. \"Wowee!\" he whispered. \"You're the prettiest… uh… sea-litter I've ever seen!\"\n\nTwinklehoof, though a bit bewildered by the talking sponge, could sense his genuine wonder and kindness. She gave a tiny, musical neigh.\n\nFrom that moment on, SpongeBob was utterly smitten. He found himself inventing reasons to visit Goo Lagoon, hoping to catch another glimpse of Twinklehoof. He’d bring her the most perfectly grilled Krabby Patties (carefully wrapped in seaweed, of course), tell her the funniest jokes, and even perform his most impressive karate moves just for her. He loved the way her tiny wings fluttered when she was amused, and the way her sparkly eyes twinkled when she learned a new word from him.\n\nTwinklehoof, in turn, found SpongeBob’s boundless enthusiasm and pure joy utterly captivating. He didn’t care that she was different; he just thought she was amazing. He showed her the wonders of Bikini Bottom, from the thrilling rides at the amusement park (which he had to adapt a little for her wings) to the quiet beauty of the coral gardens.\n\nPatrick Star, however, was quite confused. \"SpongeBob,\" he mumbled, scratching his head. \"Why are you always looking at that… flying, colorful land-muffin?\"\n\n\"Patrick,\" SpongeBob explained with a dreamy sigh, \"she's not a land-muffin! She's Twinklehoof, and she's… well, she makes my heart do the flip-flop!\"\n\nTheir budding friendship, however, was not without its challenges. The ocean and Equestria were very different worlds. Twinklehoof couldn't breathe underwater for long, and SpongeBob, as much as he tried, couldn't quite master flying. One day, while SpongeBob was trying to impress Twinklehoof with his jellyfishing net skills, he accidentally sent her spiraling towards a grumpy anglerfish.\n\nFear, cold and sharp, gripped SpongeBob’s square heart. But then, he remembered the lessons he’d learned from Master Udon: quick thinking and courage. He puffed himself up, made himself as big and as loud as possible, and shouted, \"Hey! Leave my friend alone, you toothy terror!\" The anglerfish, startled by the sudden commotion and the sheer silliness of a talking sponge, swam away in a huff.\n\nTwinklehoof, safely back on a floating jellyfish, nuzzled SpongeBob’s cheek with her velvety nose. In that moment, SpongeBob realized that love wasn't just about sparkly wings and funny jokes; it was about being brave for someone else, even when you were scared.\n\nAs days turned into weeks, the portal that brought Twinklehoof to Bikini Bottom began to shimmer again. It was time for her to return home. SpongeBob felt a pang of sadness so big, it could have swallowed a giant clam.\n\n\"Oh, Twinklehoof,\" he sniffled, tears bubbling in his eyes like tiny seafoam. \"I'll miss you more than Krabby Patties!\"\n\nTwinklehoof nudged him gently. \"And I'll miss you, SpongeBob,\" she whispered, her voice like tiny bells. \"You’ve taught me that even in a world so different, kindness and friendship can bloom.\"\n\nShe then did something magical. She touched her sparkling horn to SpongeBob’s head, and a gentle, warm glow spread through him. \"Now,\" she said, \"whenever you think of me, you'll feel a little bit of sunshine, even at the bottom of the sea. And I'll always remember your laugh.\"\n\nWith a final, loving look, Twinklehoof stepped through the portal, which swirled shut, leaving only the scent of sea salt and a hint of stardust.\n\nSpongeBob stood there for a long moment, a little sad but also a lot happy. He knew he’d never forget Twinklehoof. And sometimes, when the sunbeams slanted just right through the water, or when he heard a particularly joyful laugh, he’d feel a warmth spread through him, like a tiny, magical wink from a friend in another world. And he’d know, with all his porous heart, that true love, no matter how strange or wonderful, could make even the deepest ocean feel like the brightest sky.",
+                        "thought": null,
+                        "thought_signature": null,
+                        "video_metadata": null,
+                        "tool_call": null,
+                        "tool_response": null,
+                        "part_metadata": null
+                    }
+                ],
+                "role": "model"
+            },
+            "citation_metadata": null,
+            "finish_message": null,
+            "token_count": null,
+            "finish_reason": "STOP",
+            "grounding_metadata": null,
+            "avg_logprobs": null,
+            "index": 0,
+            "logprobs_result": null,
+            "safety_ratings": null,
+            "url_context_metadata": null
+        }
+    ],
+    "create_time": null,
+    "model_version": "gemini-2.5-flash-lite",
+    "prompt_feedback": null,
+    "response_id": "d9EzarjLONv7nsEPpZ7dkQU",
+    "usage_metadata": {
+        "cache_tokens_details": null,
+        "cached_content_token_count": null,
+        "candidates_token_count": 1206,
+        "candidates_tokens_details": null,
+        "prompt_token_count": 898,
+        "prompt_tokens_details": [
+            {
+                "modality": "TEXT",
+                "token_count": 898
+            }
+        ],
+        "thoughts_token_count": null,
+        "tool_use_prompt_token_count": null,
+        "tool_use_prompt_tokens_details": null,
+        "total_token_count": 2104,
+        "traffic_type": null
+    },
+    "model_status": null,
+    "automatic_function_calling_history": [],
+    "parsed": null
+}

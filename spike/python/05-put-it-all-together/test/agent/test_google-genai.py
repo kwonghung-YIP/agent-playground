@@ -21,3 +21,17 @@ async def dtest_chat_repository_crud():
     response: AgentResponse = await agent.create_content(request)
     
     logger.info("%s", response)
+
+
+def test_save_response_to_mock():
+    request: AgentRequest = AgentRequest(
+        requestId = uuid.uuid4(), type = "WRITER_FIRST_DRAFT",
+        flowId = uuid.uuid4(), flowType = "STORY",
+        agentId="writer#1", chatId = None,
+        userInput = { "idea": "Tell me a story about how Sponge learn self-aware!" })
+    
+    agent: AsyncAgent = AsyncAgent(request.agentId,"no-matter",True)
+
+    response = agent.load_latest_mock_response(request)
+
+    agent.save_response_to_mock(request, response)
