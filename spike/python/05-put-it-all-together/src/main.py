@@ -1,18 +1,13 @@
-from agent.common import loadAgentConfig, AgentRequest, AgentResponse
-from repository.postgres import AsyncPostgresSession
-from agent.chat import Chat, ChatMessage, ChatRepository
-from agent.google import AsyncAgent
-
 import logging
-import asyncio
-import uuid
-from typing import Optional
 from threading import Thread
 import signal
 import os
 from functools import partial
 
 from messaging.rabbitmq_pika import PikaAsyncGateway
+
+from agent.common import loadAgentConfig
+from agent.google.async_agent import AsyncAgent
 
 LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(taskName)s|%(funcName)s : %(message)s"
 

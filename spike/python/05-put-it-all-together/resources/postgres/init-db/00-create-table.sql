@@ -24,3 +24,14 @@ CREATE TABLE IF NOT EXISTS model_response (
     created_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS google_genai_batch_job (
+    name VARCHAR(255) NOT NULL PRIMARY KEY,
+    display_name VARCHAR(255) NOT NULL,
+    state VARCHAR(30) NOT NULL,
+    create_time TIMESTAMP,
+    start_time TIMESTAMP,
+    update_time TIMESTAMP,
+    end_time TIMESTAMP,
+    error JSONB,
+    batchjob_json JSONB NOT NULL
+)

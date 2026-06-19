@@ -11,7 +11,6 @@ from pika.exchange_type import ExchangeType
 from pika.adapters.asyncio_connection import AsyncioConnection
 
 from agent.common import AgentRequest, AgentResponse
-from agent.google import AsyncAgent
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +175,17 @@ class PikaAsyncGateway(threading.Thread):
         self._channel = None
         event.set()
 
+    async def handler_wrapper(self, request:AgentRequest) -> AgentResponse|None:
+        task = asyncio.current_task()
+        try:
+            return await self._llmAsyncCall(request)
+        except asyncio.CancelledError as err:
+            logger.error("task %s was cancelled", task.get_name())
+        except Exception as err:
+            logger.error("Other error when running the task %s: (%s) %s", task.get_name(), type(err), err)
+        finally:
+            logger.info("handler_wrapper completed.")
+
     def on_channel_message(self, channel:Channel, method:Basic.Deliver, props:BasicProperties, 
                            raw:bytes, taskgroup:asyncio.TaskGroup) -> None:
         logger.info("Received message: %s", raw)
@@ -189,8 +199,10 @@ class PikaAsyncGateway(threading.Thread):
         request = AgentRequest.model_validate_json(raw)
 
         self._taskCount += 1
+        # if one of the task in the taskgroup throw exception that will stop the whole task group
+        # so we call the wrapper to catch the exception and keep the group running
         task = taskgroup.create_task(
-            self._llmAsyncCall(request), 
+            self.handler_wrapper(request), 
             name=f"handlerTask_{self._taskCount}"
         )
         task.add_done_callback(partial(self.handler_task_done_callback, props=props))
@@ -198,20 +210,31 @@ class PikaAsyncGateway(threading.Thread):
         channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def handler_task_done_callback(self, task:asyncio.Task, props:BasicProperties) -> None:
-        logger.info("task %s done", task.get_name())
+        try:
+            logger.info("task %s done", task.get_name())
 
-        response:AgentResponse = task.result()
+            response:AgentResponse = task.result()
 
-        logger.info("task done, publishing result type:%s, value:%s", type(response), response)
-        self._channel.basic_publish(
-            exchange=self._responseQueue._exchangeName, 
-            routing_key=self._responseQueue._routingKey,
-            properties=pika.BasicProperties(
-                content_type="application/json",
-                correlation_id=props.correlation_id,
-            ),
-            body=response.model_dump_json()
-        )
+            if response is not None:
+                logger.info("task done, publishing result type:%s, value:%s", type(response), response)
+                self._channel.basic_publish(
+                    exchange=self._responseQueue._exchangeName, 
+                    routing_key=self._responseQueue._routingKey,
+                    properties=pika.BasicProperties(
+                        content_type="application/json",
+                        correlation_id=props.correlation_id,
+                    ),
+                    body=response.model_dump_json()
+                )
+
+        except asyncio.CancelledError as err:
+            logger.error("task %s was cancelled", task.get_name())
+        except asyncio.InvalidStateError as err:
+            logger.error("task %s has not done yet.", task.get_name())
+        except Exception as err:
+            logger.error("Error when running the task %s: %s", task.get_name(), err)
+        finally:
+            logger.info("task_done_callback completed.")
 
     def on_channel_basic_consume_ok(self, consumeOK:Basic.ConsumeOk) -> None:
         logger.info("channel basic ConsumeOK")
