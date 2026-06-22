@@ -1,0 +1,19 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.3.2-management
+    container_name: rabbitmq
+    hostname: rabbitmq_node
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin 
+      RABBITMQ_DEFAULT_PASS: passwd
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      start_period: 10s
+      start_interval: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 3
