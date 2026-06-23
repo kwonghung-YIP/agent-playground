@@ -1,0 +1,5 @@
+rabbitmq:
+  config:
+    host: localhost
+    username: admin
+    password: passwd

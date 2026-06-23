@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 import asyncio
 from functools import partial
 import threading
+from typing import Any
+import json
 
 import pika
 from pika.adapters.asyncio_connection import AsyncioConnection
@@ -11,10 +13,12 @@ from pika.channel import Channel
 from pika.spec import Basic, BasicProperties, Exchange, Queue
 from pika.exchange_type import ExchangeType
 
+from llm.google_genai import AgentRequest, AgentResponse, BatchJob, GoogleLLM
+
 logger = logging.getLogger(__name__)
 
 @dataclass
-class RabbitmqConfig:
+class RabbitHostConfig:
     """
     dataclass for rabbitmq server configuration
     """
@@ -30,16 +34,26 @@ class RabbitmqConfig:
         )
         return parameters
 
+@dataclass
+class QueueConfig:
+    """
+    configuration for declare and bind queue
+    """
+    queue:str
+    exchange:str
+    routing_key:str
+    dlq_exchange:str|None
+
 class PikaAsyncioImpl:
 
     def __init__(self):
-        self._config:RabbitmqConfig = None
-
         self._connection:AsyncioConnection = None
         self._channel:Channel = None
 
+        self._taskCount:int = 0
+
     @asynccontextmanager
-    async def openConnection(self, config:RabbitmqConfig):
+    async def openConnection(self, config:RabbitHostConfig):
 
         try:
             openedEvent = asyncio.Event()
@@ -120,27 +134,12 @@ class PikaAsyncioImpl:
     def on_exchange_declare_ok(self, declare_ok:Exchange.DeclareOk, event:asyncio.Event) -> None:
         event.set()
 
-    async def declare_and_bind_queue(self, channel:Channel, 
-        queue_name:str, exchange_name:str, routing_key:str, 
-        dlq_exchange:str=None, dlq_routing_key:str=None) -> None:
+    async def declare_and_bind_queue(self, channel:Channel, queue_name:str, exchange_name:str, 
+        routing_key:str, arguments:dict[str,Any]) -> None:
         """
         declare an exchange
         """
         declaredEvent = asyncio.Event()
-
-        # Quorum Queue delayed-retry feature
-        # https://www.rabbitmq.com/docs/quorum-queues#delayed-retry
-        arguments = {
-            'x-queue-type': 'quorum',
-            'x-delayed-retry-type': 'all', #disabled/all/failed/returned
-            'x-delayed-retry-min': 1000, #ms
-            'x-delayed-retry-max': 30000, #ms
-            'x-delivery-limit': 5
-        }
-        if dlq_exchange is not None:
-            arguments['x-dead-letter-exchange'] = dlq_exchange
-        if dlq_routing_key is not None:
-            arguments['x-dead-letter-routing-key'] = dlq_routing_key
 
         channel.queue_declare(
             queue=queue_name,
@@ -168,33 +167,136 @@ class PikaAsyncioImpl:
     def on_queue_bind(self, bind_ok:Queue.BindOk, event:asyncio.Event) -> None:
         event.set()
 
-    async def declare_main_and_dlq(self, channel:Channel, queue_name:str, 
+    async def declare_main_and_dlq(self, channel:Channel, config:QueueConfig) -> None:
+        await self.declare_main_and_dlq2(channel,
+            queue_name=config.queue,
+            exchange_name=config.exchange,
+            routing_key=config.routing_key,
+            dlq_exchange=config.dlq_exchange
+        )
+
+    async def declare_main_and_dlq2(self, channel:Channel, queue_name:str, 
         exchange_name:str, routing_key:str, dlq_exchange:str) -> None:
         
         dlq_queue_name:str = f"{queue_name}-dlq"
         dlq_routing_key:str = f"{routing_key}-dlq"
 
         # define the DLQ queue and bind to DLQ exchange
+        arguments = {
+            'x-queue-type': 'quorum',
+        }
         await self.declare_and_bind_queue(channel, 
             queue_name=dlq_queue_name,
             exchange_name=dlq_exchange,
-            routing_key=dlq_routing_key)
+            routing_key=dlq_routing_key,
+            arguments=arguments)
         
         # define main queue and bind to exchange
+        
+        # Quorum Queue delayed-retry feature
+        # https://www.rabbitmq.com/docs/quorum-queues#delayed-retry
+        arguments = {
+            'x-queue-type': 'quorum',
+            'x-delayed-retry-type': 'all', #disabled/all/failed/returned
+            'x-delayed-retry-min': 1000, #ms
+            'x-delayed-retry-max': 30000, #ms
+            'x-delivery-limit': 5,
+            'x-dead-letter-exchange': dlq_exchange,
+            'x-dead-letter-routing-key': dlq_routing_key
+        }
         await self.declare_and_bind_queue(channel, 
             queue_name=queue_name,
             exchange_name=exchange_name,
             routing_key=routing_key,
-            dlq_exchange=dlq_exchange,
-            dlq_routing_key=dlq_routing_key)
+            arguments=arguments)
+
+    def subscribe_queue(self, channel:Channel, queue_name:str, tg:asyncio.TaskGroup, handler:function) -> str:
+        consumer_tag:str = channel.basic_consume(
+            queue=queue_name,
+            on_message_callback=partial(self.on_channel_message, taskgroup=tg, handler=handler),
+            callback=self.on_channel_basic_consume_ok
+        )
+        return consumer_tag
+
+    def on_channel_message(self, channel:Channel, method:Basic.Deliver, 
+        props:BasicProperties, raw:bytes, taskgroup:asyncio.TaskGroup, handler:function) -> None:
+
+        for (key,value) in props.headers.items():
+            logger.info(f"header {key}:{value}")
+
+        self._taskCount += 1
+        # if one of the task in the taskgroup throw exception that will stop the whole task group
+        # so we call the wrapper to catch the exception and keep the group running
+        task = taskgroup.create_task(
+            self.task_wrapper(channel, method.delivery_tag, handler(channel, raw, props)), 
+            name=f"handlerTask_{self._taskCount}"
+        )
+
+    async def task_wrapper(self, channel:Channel, delivery_tag:int, handler:asyncio.coroutines) -> None:
+        try:
+            result = await handler
+            channel.basic_ack(delivery_tag)
+        except Exception as err:
+            logger.error("exception when running task %s", err)
+            # will Quorum Queue, once the no of times a message being rejected hit the x-delivery-limit
+            # it will be move to the dead letter queue by the rabbitmq and don't need to explivitly specify 
+            # the basic.reject reqeueue flag to False
+            channel.basic_reject(delivery_tag, requeue=True)
+        finally:
+            pass
+
+    def on_channel_basic_consume_ok(self, consumeOK:Basic.ConsumeOk) -> None:
+        logger.info("channel basic ConsumeOK")
+
+    async def cancel_subscription(self, channel:Channel, consumer_tag:str) -> None:
+        cancelOKEvent = asyncio.Event()
+        logger.info(f"Cancelling conumer subscription consumer_tag:{consumer_tag}")
+        channel.basic_cancel(
+            consumer_tag=consumer_tag,
+            callback=partial(self.on_channel_basic_cancel_ok, event=cancelOKEvent)
+        )
+        await cancelOKEvent.wait()
+
+    def on_channel_basic_cancel_ok(self, cancelOk:Basic.CancelOk, event:asyncio.Event) -> None:
+        logger.info(f"channel BasicCancelOK")
+        event.set()
+
 
 class MessageThread(threading.Thread):
-    
-    def __init__(self, handler:asyncio.coroutines) -> None:
+
+    def __init__(self, llm:GoogleLLM) -> None:
         super().__init__()
         self._termSignal:threading.Event = threading.Event()
 
-        self._handler = handler
+        self._hostConfig:RabbitHostConfig = RabbitHostConfig(host="localhost", username="admin", password="passwd")
+        
+        self._request_routing_exchange:str = "request-routing"
+        self._request_dlq_exchange:str = "request-dlq"
+
+        self._google_async_queue_cfg:QueueConfig = QueueConfig(
+            queue="google-genai-async-request",
+            exchange=self._request_routing_exchange,
+            routing_key="google-genai-async",
+            dlq_exchange=self._request_dlq_exchange
+        )
+        self._google_async_batch_queue_cfg:QueueConfig = QueueConfig(
+            queue="google-genai-async-batch-request",
+            exchange=self._request_routing_exchange,
+            routing_key="google-genai-async-batch",
+            dlq_exchange=self._request_dlq_exchange
+        )
+
+        self._response_exchange:str = "agent-response"
+        self._response_dlq_exchange:str = "agent-response-dlq"
+
+        self._agent_response_queue_cfg:QueueConfig = QueueConfig(
+            queue="agent-response",
+            exchange=self._response_exchange,
+            routing_key="google-genai-async-batch",
+            dlq_exchange=self._response_dlq_exchange
+        )
+
+        self._googleLLM = llm
 
         self._taskCount:int = 0
 
@@ -205,7 +307,7 @@ class MessageThread(threading.Thread):
         """
         try:
             logger.info("Call asyncio.run() to start accepting agent request...")
-            asyncio.run(self.acceptRequest())
+            asyncio.run(self.acceptRequest(self._hostConfig))
         finally:
             logger.info("asyncio.run()... completed.")
 
@@ -217,38 +319,33 @@ class MessageThread(threading.Thread):
         logger.info("set termSignal")
         self._termSignal.set()
 
-    async def acceptRequest(self) -> None:
+    async def acceptRequest(self, hostCfg:RabbitHostConfig) -> None:
         """
         """
-        pikaCfg = RabbitmqConfig(host="localhost", username="admin", password="passwd")
         pikaImpl = PikaAsyncioImpl()
-        async with pikaImpl.openConnection(pikaCfg) as conn, pikaImpl.openChannel(conn) as channel:
-            await pikaImpl.declare_exchange(channel, "dlq-exchange")
-            await pikaImpl.declare_exchange(channel, "main-exchange")
-            await pikaImpl.declare_main_and_dlq(channel,
-                queue_name="main",
-                exchange_name="main-exchange",
-                routing_key="main",
-                dlq_exchange="dlq-exchange")
+        async with pikaImpl.openConnection(self._hostConfig) as conn, pikaImpl.openChannel(conn) as channel:
+
+            await pikaImpl.declare_exchange(channel, self._request_routing_exchange)
+            await pikaImpl.declare_exchange(channel, self._request_dlq_exchange)
             
+            await pikaImpl.declare_main_and_dlq(channel, self._google_async_queue_cfg)
+            
+            await pikaImpl.declare_main_and_dlq(channel, self._google_async_batch_queue_cfg)
+            
+            await pikaImpl.declare_exchange(channel, self._response_exchange)
+            await pikaImpl.declare_exchange(channel, self._response_dlq_exchange)
+
+            await pikaImpl.declare_main_and_dlq(channel, self._agent_response_queue_cfg)
+
             async with asyncio.TaskGroup() as tg:
                 # define background tasks
-                bgTask = tg.create_task(self.backgroundTask(),name="backgroundTask")
-                consumer_tag = channel.basic_consume(
-                    queue="main",
-                    on_message_callback=partial(self.on_channel_message,taskgroup=tg),
-                    callback=self.on_channel_basic_consume_ok
-                )
+                bgTask = tg.create_task(self.backgroundTask(), name="backgroundTask")
+                consumer_tag = pikaImpl.subscribe_queue(channel, self._google_async_queue_cfg.queue, tg, self.llm_async_wrapper)
+                consumer_tag = pikaImpl.subscribe_queue(channel, self._google_async_batch_queue_cfg.queue, tg, self.llm_async_batch_wrapper)
 
             logger.info("asyncio.TaskGroup completed.")
 
-            cancelOKEvent = asyncio.Event()
-            logger.info(f"Cancelling conumer subscription consumer_tag:{consumer_tag}")
-            channel.basic_cancel(
-                consumer_tag=consumer_tag,
-                callback=partial(self.on_channel_basic_cancel_ok, event=cancelOKEvent)
-            )
-            await cancelOKEvent.wait()
+            await pikaImpl.cancel_subscription(channel, consumer_tag)
 
     async def backgroundTask(self, interval:float=1) -> None:
         """
@@ -261,37 +358,20 @@ class MessageThread(threading.Thread):
             logger.debug("The self._termSignal has not activated sleep for %d sec...", interval)
             await asyncio.sleep(interval)
 
-    def on_channel_message(self, channel:Channel, method:Basic.Deliver, 
-        props:BasicProperties, raw:bytes, taskgroup:asyncio.TaskGroup) -> None:
-
-        for (key,value) in props.headers.items():
-            logger.info(f"header {key}:{value}")
-
-        self._taskCount += 1
-        # if one of the task in the taskgroup throw exception that will stop the whole task group
-        # so we call the wrapper to catch the exception and keep the group running
-        task = taskgroup.create_task(
-            self.handler_wrapper(channel, method.delivery_tag), 
-            name=f"handlerTask_{self._taskCount}"
+    async def llm_async_wrapper(self, channel:Channel, raw:bytes, props:BasicProperties) -> None:
+        request:AgentRequest = json.loads(raw)
+        response:AgentResponse = await self._googleLLM.callAsyncLLM(request)
+        
+        channel.basic_publish(
+            exchange=self._agent_response_queue_cfg.exchange, 
+            routing_key=self._agent_response_queue_cfg.routing_key,
+            properties=pika.BasicProperties(
+                content_type="application/json",
+                correlation_id=props.correlation_id,
+            ),
+            body=json.dumps(response.__dict__)
         )
 
-    def on_channel_basic_consume_ok(self, consumeOK:Basic.ConsumeOk) -> None:
-        logger.info("channel basic ConsumeOK")
-    
-    def on_channel_basic_cancel_ok(self, cancelOk:Basic.CancelOk, event:asyncio.Event) -> None:
-        logger.info(f"channel BasicCancelOK")
-        event.set()
-
-    async def handler_wrapper(self, channel:Channel, delivery_tag:int) -> None:
-        try:
-            result = await self._handler()
-
-            channel.basic_ack(delivery_tag)
-        except Exception as err:
-            await asyncio.sleep(5)
-            # will Quorum Queue, once the no of times a message being rejected hit the x-delivery-limit
-            # it will be move to the dead letter queue by the rabbitmq and don't need to explivitly specify 
-            # the basic.reject reqeueue flag to False
-            channel.basic_reject(delivery_tag, requeue=True)
-        finally:
-            pass
+    async def llm_async_batch_wrapper(self, channel:Channel, raw:bytes, props:BasicProperties) -> None:
+        request:AgentRequest = json.loads(raw)
+        batchJob:BatchJob = await self._googleLLM.callAsyncBatchLLM(request)

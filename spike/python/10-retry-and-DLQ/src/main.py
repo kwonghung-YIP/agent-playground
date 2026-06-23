@@ -3,7 +3,12 @@ from threading import Thread
 import signal
 from functools import partial
 
+import hydra
+from omegaconf import DictConfig
+from hydra.utils import instantiate
+
 from messaging.rabbitmq import MessageThread
+from llm.google_genai import GoogleLLM
 
 LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(taskName)s|%(funcName)s : %(message)s"
 
@@ -25,13 +30,15 @@ def joinThreads(threadPool:list[Thread],timeout:float) -> None:
                 thread.join(timeout)
     logger.info("All threads stopped.")
 
+
 def main():
     """
     Keep the main thread running until all child thread completed.
     """
     logger.info("Start main....")
     try:
-        messageThread = MessageThread(dummy)
+        googleLLM = GoogleLLM()
+        messageThread = MessageThread(googleLLM)
         signal.signal(signal.SIGTERM, partial(handle_signal, threadPool=[messageThread]))
         
         messageThread.start()
@@ -41,9 +48,6 @@ def main():
         messageThread.stop()
     finally:
         joinThreads([messageThread],1)
-
-async def dummy():
-    raise Exception("error and retry!")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
