@@ -33,6 +33,18 @@ class AsyncAgent:
         return await agent.create_content(request)
 
     async def create_content(self, request:AgentRequest) -> AgentResponse:
+        """
+        1. load the AgentConfig by the AgentRequest.agentId
+        2. render the System Instruction: AgentConfig.templates['system-instruction'] + AgentRequest
+        3. construct the google.genai.types.Content with the System Instruction rendering result
+        4. if AgentRequest.chatId is None, then create a new Chat record, otherwise load the entire chat history 
+           from the database
+        5. render the Prompt Message: AgentConfig.templates['request'][AgentRequest.type] + AgentRequest
+        6. append the Prompt Message rendering result as the latest ChatMessage into the Chat
+        7. convert the Chat with the history into google.genai.types.Content as the user input
+        8. load the GOOGLE_API_KEY (from environment variable/docker secret binding file)
+        9. 
+        """
         logger.info("load the Agent Config - agentId:[%s]", self._id)
         self._config = await loadAgentConfig(self._id)
 

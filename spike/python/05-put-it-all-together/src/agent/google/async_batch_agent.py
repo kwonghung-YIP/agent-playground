@@ -68,13 +68,17 @@ class AsyncBatchAgent:
 
             # https://googleapis.github.io/python-genai/genai.html#genai.types.BatchJob
 
-            # batchjob.completion_stats
-            # https://googleapis.github.io/python-genai/genai.html#genai.types.CompletionStats
-            # batchjob.error
-            # https://googleapis.github.io/python-genai/genai.html#genai.types.JobError
             # batch.state
             # https://googleapis.github.io/python-genai/genai.html#genai.types.JobState
-
+            # batch.dest: Optional[BatchJobDestination] = None
+            # https://googleapis.github.io/python-genai/genai.html#genai.types.BatchJobDestination
+            # batch.dest.inlined_responses: list[genai.types.InlinedResponse] | None
+            # https://googleapis.github.io/python-genai/genai.html#genai.types.InlinedResponse
+            # batch.dest.inlined_responses[].response: Optional[GenerateContentResponse] = None
+            # batchjob.error
+            # https://googleapis.github.io/python-genai/genai.html#genai.types.JobError
+            # batchjob.completion_stats
+            # https://googleapis.github.io/python-genai/genai.html#genai.types.CompletionStats
             batchjob: BatchJob = await client.batches.create(
                 model="",
                 src=[inline],
@@ -85,4 +89,6 @@ class AsyncBatchAgent:
 
             batchjob2: BatchJob = await client.batches.get(batchjob.name)
             #batchjob2.state in (JobState.JOB_STATE_SUCCEEDED, JobState.JOB_STATE_FAILED, JobState.)
+
+            batchjob2.dest.inlined_responses[0].response.text
 
