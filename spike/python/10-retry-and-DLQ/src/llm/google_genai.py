@@ -23,15 +23,15 @@ class GoogleLLM:
         self._job_count:int = 0
 
     async def callAsyncLLM(self, request:AgentRequest) -> AgentResponse:
-        logger.info("here")
-        if random.random() > 0.7:
+        logger.info("calling google async generate_content...")
+        if random.random() > 0.05:
             raise Exception("callAsyncLLM error")
         else:
             return AgentResponse(responseId=uuid.uuid4().hex)
 
     async def callAsyncBatchLLM(self, request:AgentRequest) -> BatchJob:
-        logger.info("here2")
-        if random.random() > 0.7:
+        logger.info("calling google async batch generate_content...")
+        if random.random() > 0.05:
             raise Exception("callAsyncBatchLLM error")
         else:
             return BatchJob(jobId=f"dummy batch job {self._job_count}")

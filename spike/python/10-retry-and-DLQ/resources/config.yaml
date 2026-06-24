@@ -1,5 +1,5 @@
-rabbitmq:
-  config:
-    host: localhost
-    username: admin
-    password: passwd
+rabbitmq-host:
+  _target_: messaging.rabbitmq.RabbitHostConfig
+  host: localhost
+  username: admin
+  password: passwd

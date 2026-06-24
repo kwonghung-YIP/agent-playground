@@ -53,7 +53,7 @@ class PikaAsyncioImpl:
         self._taskCount:int = 0
 
     @asynccontextmanager
-    async def openConnection(self, config:RabbitHostConfig):
+    async def openConnection(self, config:RabbitHostConfig, timeout:float=30):
 
         try:
             openedEvent = asyncio.Event()
@@ -64,14 +64,14 @@ class PikaAsyncioImpl:
                 on_open_error_callback=self.on_connection_open_error,
                 on_close_callback=partial(self.on_connection_close, event=closedEvent)
             )
-            await openedEvent.wait()
+            await asyncio.wait_for(openedEvent.wait(), timeout)
             yield connection
         except Exception as err:
             logger.error("Exception when using the connection: %s", err)
             raise err
         finally:
             connection.close()
-            await closedEvent.wait()
+            await asyncio.wait_for(closedEvent.wait(), timeout)
 
     def on_connection_open(self, conn:AsyncioConnection, event:asyncio.Event) -> None:
         """
@@ -89,7 +89,7 @@ class PikaAsyncioImpl:
         pass
 
     @asynccontextmanager
-    async def openChannel(self, connection:AsyncioConnection):
+    async def openChannel(self, connection:AsyncioConnection, timeout:float=30):
 
         try:
             openedEvent = asyncio.Event()
@@ -101,14 +101,14 @@ class PikaAsyncioImpl:
                     onClosedCallback=partial(self.on_channel_close, 
                         event=closedEvent))
             )
-            await openedEvent.wait()
+            await asyncio.wait_for(openedEvent.wait(), timeout)
             yield channel
         except Exception as err:
             logger.error("Exception when using the channel: %s", err)
             raise err
         finally:
             channel.close()
-            await closedEvent.wait()
+            await asyncio.wait_for(closedEvent.wait(), timeout)
 
     def on_channel_open(self, channel:Channel, 
         event:asyncio.Event, onClosedCallback:function) -> None:
@@ -118,7 +118,7 @@ class PikaAsyncioImpl:
     def on_channel_close(self, channel:Channel, reason:Exception, event:asyncio.Event):
         event.set()
 
-    async def declare_exchange(self, channel:Channel, name:str):
+    async def declare_exchange(self, channel:Channel, name:str, timeout:float=30):
         """
         declare an exchange
         """
@@ -129,13 +129,13 @@ class PikaAsyncioImpl:
             exchange_type=ExchangeType.direct,
             callback=partial(self.on_exchange_declare_ok, event=declaredEvent)
         )
-        await declaredEvent.wait()
+        await asyncio.wait_for(declaredEvent.wait(), timeout)
 
     def on_exchange_declare_ok(self, declare_ok:Exchange.DeclareOk, event:asyncio.Event) -> None:
         event.set()
 
     async def declare_and_bind_queue(self, channel:Channel, queue_name:str, exchange_name:str, 
-        routing_key:str, arguments:dict[str,Any]) -> None:
+        routing_key:str, arguments:dict[str,Any], timeout:float=30) -> None:
         """
         declare an exchange
         """
@@ -148,7 +148,7 @@ class PikaAsyncioImpl:
             callback=partial(self.on_queue_declare, event=declaredEvent)
         )
 
-        await declaredEvent.wait()
+        await asyncio.wait_for(declaredEvent.wait(), timeout)
 
         bindEvent = asyncio.Event()
 
@@ -159,7 +159,7 @@ class PikaAsyncioImpl:
             callback=partial(self.on_queue_bind, event=bindEvent)
         )
 
-        await bindEvent.wait()
+        await asyncio.wait_for(bindEvent.wait(), timeout)
 
     def on_queue_declare(self, declare_ok:Queue.DeclareOk, event:asyncio.Event) -> None:
         event.set()
@@ -248,14 +248,14 @@ class PikaAsyncioImpl:
     def on_channel_basic_consume_ok(self, consumeOK:Basic.ConsumeOk) -> None:
         logger.info("channel basic ConsumeOK")
 
-    async def cancel_subscription(self, channel:Channel, consumer_tag:str) -> None:
+    async def cancel_subscription(self, channel:Channel, consumer_tag:str, timeout:float=30) -> None:
         cancelOKEvent = asyncio.Event()
         logger.info(f"Cancelling conumer subscription consumer_tag:{consumer_tag}")
         channel.basic_cancel(
             consumer_tag=consumer_tag,
             callback=partial(self.on_channel_basic_cancel_ok, event=cancelOKEvent)
         )
-        await cancelOKEvent.wait()
+        await asyncio.wait_for(cancelOKEvent.wait(), timeout)
 
     def on_channel_basic_cancel_ok(self, cancelOk:Basic.CancelOk, event:asyncio.Event) -> None:
         logger.info(f"channel BasicCancelOK")
@@ -264,11 +264,11 @@ class PikaAsyncioImpl:
 
 class MessageThread(threading.Thread):
 
-    def __init__(self, llm:GoogleLLM) -> None:
+    def __init__(self, llm:GoogleLLM, rabbitHost:RabbitHostConfig) -> None:
         super().__init__()
         self._termSignal:threading.Event = threading.Event()
 
-        self._hostConfig:RabbitHostConfig = RabbitHostConfig(host="localhost", username="admin", password="passwd")
+        self._hostConfig:RabbitHostConfig = rabbitHost
         
         self._request_routing_exchange:str = "request-routing"
         self._request_dlq_exchange:str = "request-dlq"

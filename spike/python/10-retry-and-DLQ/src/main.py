@@ -7,7 +7,7 @@ import hydra
 from omegaconf import DictConfig
 from hydra.utils import instantiate
 
-from messaging.rabbitmq import MessageThread
+from messaging.rabbitmq import RabbitHostConfig, MessageThread
 from llm.google_genai import GoogleLLM
 
 LOG_FORMAT = "%(asctime)s [%(levelname)s]|%(threadName)s|%(taskName)s|%(funcName)s : %(message)s"
@@ -30,15 +30,16 @@ def joinThreads(threadPool:list[Thread],timeout:float) -> None:
                 thread.join(timeout)
     logger.info("All threads stopped.")
 
-
-def main():
+@hydra.main(version_base=None, config_path="../resources", config_name="config")
+def main(config:DictConfig):
     """
     Keep the main thread running until all child thread completed.
     """
     logger.info("Start main....")
     try:
+        rabbitHost:RabbitHostConfig = instantiate(config['rabbitmq-host'])
         googleLLM = GoogleLLM()
-        messageThread = MessageThread(googleLLM)
+        messageThread = MessageThread(googleLLM, rabbitHost)
         signal.signal(signal.SIGTERM, partial(handle_signal, threadPool=[messageThread]))
         
         messageThread.start()
